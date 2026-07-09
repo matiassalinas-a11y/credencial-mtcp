@@ -1,0 +1,40 @@
+import type { Affiliate } from "@/types/affiliate"
+
+export const mockAffiliates: Affiliate[] = [
+  {
+    id: "1",
+    nombreCompleto: "Juan Pérez",
+    nombreCorto: "Juan",
+    dni: "30111222",
+    socio: "AFI-0001",
+    sede: "Comodoro Rivadavia",
+    empresa: "Constructora Patagonia S.A.",
+    estado: "activo",
+    fechaAlta: "10/03/2025",
+    fechaVencimiento: "10/03/2027",
+  },
+  {
+    id: "2",
+    nombreCompleto: "Carlos Gómez",
+    nombreCorto: "Carlos",
+    dni: "28777888",
+    socio: "AFI-0002",
+    sede: "Sarmiento",
+    empresa: "Sur Construcciones",
+    estado: "gracia",
+    fechaAlta: "15/05/2024",
+    fechaVencimiento: "15/05/2026",
+  },
+  {
+    id: "3",
+    nombreCompleto: "Roberto Díaz",
+    nombreCorto: "Roberto",
+    dni: "33444555",
+    socio: "AFI-0003",
+    sede: "Esquel",
+    empresa: "-",
+    estado: "inactivo",
+    fechaAlta: "01/02/2023",
+    fechaVencimiento: "01/02/2025",
+  },
+]
