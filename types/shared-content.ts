@@ -30,8 +30,15 @@ export type InstitutionalInfo = {
 
 export type MutualService = {
   id: string
+  slug?: string
   name: string
   category: string
+  shortDescription?: string
+  fullDescription?: string
+  discount?: string
+  region?: string
+  imageUrl?: string
+  coverGradient?: string
   description: string
   address?: string
   phone?: string

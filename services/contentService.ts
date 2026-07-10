@@ -13,7 +13,17 @@ import type {
 import type { NewsItem } from "@/types/content"
 
 export function getBenefits(): MutualService[] {
-  return mutualServices.filter((service) => service.published)
+  return mutualServices
+    .filter((service) => service.published)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+}
+
+export function getFeaturedBenefits(): MutualService[] {
+  return getBenefits().filter((service) => service.featured)
+}
+
+export function getBenefitById(id: string): MutualService | undefined {
+  return getBenefits().find((service) => service.id === id || service.slug === id)
 }
 
 export function getTourismPackages(): MutualService[] {

@@ -1,4 +1,7 @@
+import { BadgeCheck, BriefcaseBusiness, Building2, CalendarDays, IdCard, LogOut, MapPinned, UserRound } from "lucide-react"
+import type { ReactNode } from "react"
 import type { Affiliate } from "@/types/affiliate"
+import { institutionalInfo } from "@/data/shared-content"
 import { themeStyles } from "@/lib/themeStyles"
 import StatusBadge from "@/components/StatusBadge"
 
@@ -7,24 +10,20 @@ interface ProfileScreenProps {
   onLogout: () => void
 }
 
-function DataRow({ label, value, last }: { label: string; value: string; last?: boolean }) {
+function DataRow({ icon, label, value, last }: { icon: ReactNode; label: string; value: string; last?: boolean }) {
   return (
-    <div
-      className="flex items-start justify-between gap-4 py-3.5"
-      style={{ borderBottom: last ? "none" : "1px solid var(--border)" }}
-    >
-      <span
-        className="text-[11px] font-extrabold uppercase tracking-wider flex-shrink-0"
-        style={{ color: "var(--muted-foreground)", minWidth: 100 }}
-      >
-        {label}
+    <div className="flex items-start gap-3 py-3.5" style={{ borderBottom: last ? "none" : "1px solid var(--border)" }}>
+      <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[12px]" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
+        {icon}
       </span>
-      <span
-        className="text-sm font-bold text-right leading-snug"
-        style={{ color: "var(--foreground)" }}
-      >
-        {value}
-      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.12em]" style={{ color: "var(--muted-foreground)" }}>
+          {label}
+        </p>
+        <p className="mt-1 text-sm font-bold leading-snug" style={{ color: "var(--foreground)" }}>
+          {value}
+        </p>
+      </div>
     </div>
   )
 }
@@ -40,70 +39,78 @@ export default function ProfileScreen({ affiliate, onLogout }: ProfileScreenProp
   return (
     <div className="screen-scroll screen-enter">
       <div
-        className="px-5 pt-12 pb-10 flex flex-col items-center gap-4"
+        className="relative flex flex-col items-center gap-4 overflow-hidden px-5 pb-12 pt-12"
         style={{ background: themeStyles.headerBackground }}
       >
-        <div
-          className="w-20 h-20 rounded-full flex items-center justify-center"
-          style={{
-            background: "rgba(255,255,255,0.14)",
-            border: "2px solid rgba(255,255,255,0.32)",
-            boxShadow: "0 12px 30px rgba(0,0,0,0.14)",
-          }}
-        >
+        <div className="absolute -right-12 top-2 h-40 w-40 rounded-full bg-white/10" />
+        <div className="absolute -left-16 bottom-0 h-36 w-36 rounded-full bg-white/5" />
+
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.14)", border: "2px solid rgba(255,255,255,0.32)", boxShadow: "0 12px 30px rgba(0,0,0,0.14)" }}>
           <span className="text-2xl font-extrabold" style={{ color: "#ffffff" }}>
             {initials}
           </span>
         </div>
 
-        <div className="flex flex-col items-center gap-1.5">
-          <h1 className="text-xl font-extrabold text-center" style={{ color: "#ffffff" }}>
+        <div className="relative flex flex-col items-center gap-1.5 text-center">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: "rgba(255,255,255,0.58)" }}>
+            Ficha institucional
+          </p>
+          <h1 className="text-xl font-extrabold" style={{ color: "#ffffff" }}>
             {affiliate.nombreCompleto}
           </h1>
-          <p className="text-sm font-bold" style={{ color: "rgba(255,255,255,0.62)" }}>
+          <p className="text-sm font-bold" style={{ color: "rgba(255,255,255,0.68)" }}>
             Socio {affiliate.socio}
           </p>
-          <div className="mt-0.5">
+          <div className="mt-1">
             <StatusBadge status={affiliate.estado} size="sm" />
           </div>
         </div>
       </div>
 
-      <div className="px-4 -mt-5 flex flex-col gap-4 pb-6">
+      <div className="-mt-8 flex flex-col gap-4 px-4 pb-6">
         <div className="mtcp-card overflow-hidden">
-          <div
-            className="px-5 py-3.5 flex items-center gap-2"
-            style={{ borderBottom: "1px solid var(--border)", background: "var(--secondary)" }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--primary)" }}>
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            <p className="mtcp-section-label">
-              Ficha del afiliado
-            </p>
+          <div className="flex items-center gap-2 px-5 py-4" style={{ borderBottom: "1px solid var(--border)", background: "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)" }}>
+            <BadgeCheck size={16} strokeWidth={2.2} style={{ color: "var(--primary)" }} />
+            <div>
+              <p className="text-sm font-extrabold" style={{ color: "var(--foreground)" }}>
+                Datos del afiliado
+              </p>
+              <p className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                {institutionalInfo.shortName}
+              </p>
+            </div>
           </div>
 
           <div className="px-5">
-            <DataRow label="Nombre" value={affiliate.nombreCompleto} />
-            <DataRow label="DNI" value={affiliate.dni} />
-            <DataRow label="N° de socio" value={affiliate.socio} />
-            <DataRow label="Sede" value={affiliate.sede} />
-            <DataRow label="Empresa" value={affiliate.empresa} />
-            <DataRow label="Alta" value={affiliate.fechaAlta} />
-            <DataRow label="Vencimiento" value={affiliate.fechaVencimiento} last />
+            <DataRow icon={<UserRound size={16} strokeWidth={2.2} />} label="Nombre" value={affiliate.nombreCompleto} />
+            <DataRow icon={<IdCard size={16} strokeWidth={2.2} />} label="DNI" value={affiliate.dni} />
+            <DataRow icon={<BadgeCheck size={16} strokeWidth={2.2} />} label="Número de socio" value={affiliate.socio} />
+            <DataRow icon={<MapPinned size={16} strokeWidth={2.2} />} label="Sede" value={affiliate.sede} />
+            <DataRow icon={<BriefcaseBusiness size={16} strokeWidth={2.2} />} label="Empresa" value={affiliate.empresa} />
+            <DataRow icon={<CalendarDays size={16} strokeWidth={2.2} />} label="Alta" value={affiliate.fechaAlta} />
+            <DataRow icon={<CalendarDays size={16} strokeWidth={2.2} />} label="Vencimiento" value={affiliate.fechaVencimiento} last />
+          </div>
+        </div>
+
+        <div className="mtcp-card flex items-start gap-3 px-5 py-4">
+          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[14px]" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
+            <Building2 size={19} strokeWidth={2.1} />
+          </span>
+          <div>
+            <p className="text-sm font-extrabold" style={{ color: "var(--foreground)" }}>
+              {institutionalInfo.shortName}
+            </p>
+            <p className="mt-1 text-xs font-medium leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+              {institutionalInfo.mainAddress}
+            </p>
           </div>
         </div>
 
         <button
           onClick={onLogout}
-          className="mtcp-button-secondary w-full py-4 text-sm font-extrabold flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] active:opacity-80"
+          className="mtcp-button-secondary flex w-full items-center justify-center gap-2.5 py-4 text-sm font-extrabold transition-all active:scale-[0.98] active:opacity-80"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
+          <LogOut size={17} strokeWidth={2.3} />
           Ingresar otro DNI
         </button>
       </div>
