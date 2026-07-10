@@ -1,7 +1,10 @@
-import { appTexts, institutionalInfo } from "@/data/shared-content"
+"use client"
+
+import { useState, type KeyboardEvent } from "react"
+import Image from "next/image"
+import { appTexts } from "@/data/shared-content"
 import type { Affiliate, AffiliateStatus } from "@/types/affiliate"
 import { themeStyles } from "@/lib/themeStyles"
-import MtcpLogo from "@/components/MtcpLogo"
 import StatusBadge from "@/components/StatusBadge"
 
 interface CredentialCardProps {
@@ -16,21 +19,161 @@ const credentialMessages: Record<AffiliateStatus, { text: string }> = {
   suspendido: { text: "Credencial suspendida." },
 }
 
-function FieldBlock({ label, value }: { label: string; value: string }) {
+function FieldBlock({
+  label,
+  value,
+  variant = "default",
+}: {
+  label: string
+  value: string
+  variant?: "default" | "name" | "company"
+}) {
+  const isName = variant === "name"
+  const isCompany = variant === "company"
+  const valueClassName = isName
+    ? "text-[12px] font-bold leading-[1.1] tracking-[-0.01em] text-[#1E2F55]"
+    : isCompany
+      ? "text-[10.5px] font-semibold leading-[1.1] text-[#1E2F55]"
+      : "text-[11px] font-semibold leading-[1.1] text-[#1E2F55]"
+  const valueStyle = isName
+    ? {
+        display: "-webkit-box",
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: "vertical" as const,
+        overflow: "hidden",
+      }
+    : {
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap" as const,
+      }
+
   return (
-    <div className="flex flex-col gap-1">
-      <span
-        className="text-[9px] font-extrabold uppercase tracking-[0.14em]"
-        style={{ color: "#BFD3FF" }}
-      >
+    <div className="min-w-0 border-b border-[#E2E8F0] pb-[clamp(5px,1.7vw,7px)]">
+      <span className="mb-1 block font-extrabold uppercase leading-none tracking-[0.05em] text-[#145BB8] text-[8px]">
         {label}
       </span>
-      <span
-        className="text-sm font-bold leading-snug"
-        style={{ color: "#ffffff" }}
-      >
-        {value}
+      <span className={`block min-w-0 ${valueClassName}`} style={valueStyle}>
+        {value || "-"}
       </span>
+    </div>
+  )
+}
+
+function TwoColumnFields({
+  left,
+  right,
+}: {
+  left: { label: string; value: string }
+  right: { label: string; value: string }
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-[clamp(18px,6vw,28px)] border-b border-[#E2E8F0] pb-[clamp(5px,1.7vw,7px)]">
+      <div className="min-w-0">
+        <span className="mb-1 block font-extrabold uppercase leading-none tracking-[0.05em] text-[#145BB8] text-[8px]">
+          {left.label}
+        </span>
+        <span className="block truncate font-semibold leading-[1.1] text-[#1E2F55] text-[11px]">
+          {left.value || "-"}
+        </span>
+      </div>
+      <div className="min-w-0">
+        <span className="mb-1 block font-extrabold uppercase leading-none tracking-[0.05em] text-[#145BB8] text-[8px]">
+          {right.label}
+        </span>
+        <span className="block truncate font-semibold leading-[1.1] text-[#1E2F55] text-[11px]">
+          {right.value || "-"}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function CredentialFront({ affiliate }: { affiliate: Affiliate }) {
+  const beneficiaryName = affiliate.beneficiaryName?.trim() || "Titular"
+
+  return (
+    <div className="absolute inset-0 flex h-full w-full flex-col overflow-hidden rounded-[14px] bg-white shadow-[0_4px_18px_rgba(20,40,70,0.18)] [backface-visibility:hidden]">
+      <Image
+        src="/assets/credential/credential-front-header.png"
+        alt="Logos Conduccion Raul Silva y M.T.C.P."
+        width={1004}
+        height={248}
+        priority
+        className="block w-full flex-none"
+      />
+
+      <div className="flex min-h-0 flex-1 flex-col justify-center px-[clamp(18px,6.2vw,24px)] pb-[clamp(14px,4.2vw,20px)] pt-[clamp(12px,3.6vw,17px)] font-sans">
+        <div className="grid gap-[clamp(6px,1.8vw,8px)]">
+          <FieldBlock label="Nombre" value={affiliate.nombreCompleto} variant="name" />
+          <FieldBlock label="Sede" value={affiliate.sede} />
+          <TwoColumnFields
+            left={{ label: "D.N.I.", value: affiliate.dni }}
+            right={{ label: "Socio N°", value: affiliate.socio }}
+          />
+          <FieldBlock label="Beneficiario/a" value={beneficiaryName} />
+          <FieldBlock label="Empresa" value={affiliate.empresa} variant="company" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CredentialBack() {
+  return (
+    <div
+      className="absolute inset-0 flex h-full w-full flex-col overflow-hidden rounded-[14px] bg-white shadow-[0_4px_18px_rgba(20,40,70,0.18)] [backface-visibility:hidden]"
+      style={{ transform: "rotateY(180deg)" }}
+    >
+      <Image
+        src="/assets/credential/credential-back.jpg"
+        alt="Dorso de la credencial"
+        width={800}
+        height={517}
+        className="h-full w-full object-contain"
+      />
+    </div>
+  )
+}
+
+function CredentialFlipCard({ affiliate }: { affiliate: Affiliate }) {
+  const [isFlipped, setIsFlipped] = useState(false)
+
+  function toggleCard() {
+    setIsFlipped((current) => !current)
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault()
+      toggleCard()
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="Credencial M.T.C.P., toca para girar"
+        aria-pressed={isFlipped}
+        onClick={toggleCard}
+        onKeyDown={handleKeyDown}
+        className="w-full max-w-[380px] cursor-pointer outline-none [perspective:1500px] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+        style={{ aspectRatio: "1004 / 790", maxWidth: "min(380px, 92vw)" }}
+      >
+        <div
+          className="relative h-full w-full transition-transform duration-700 ease-[cubic-bezier(0.4,0.2,0.2,1)] [transform-style:preserve-3d]"
+          style={{ transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
+        >
+          <CredentialFront affiliate={affiliate} />
+          <CredentialBack />
+        </div>
+      </div>
+
+      <p className="text-center text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+        Toca la tarjeta para girarla
+      </p>
     </div>
   )
 }
@@ -41,12 +184,12 @@ export default function CredentialCard({ affiliate, onBack }: CredentialCardProp
   return (
     <div className="screen-scroll screen-enter">
       <div
-        className="px-5 pt-12 pb-5 flex items-center gap-3"
+        className="flex items-center gap-3 px-5 pb-5 pt-12"
         style={{ background: themeStyles.headerBackground }}
       >
         <button
           onClick={onBack}
-          className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
+          className="flex h-9 w-9 items-center justify-center rounded-full transition-all active:scale-90"
           style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)" }}
           aria-label="Volver"
         >
@@ -60,84 +203,19 @@ export default function CredentialCard({ affiliate, onBack }: CredentialCardProp
         </div>
       </div>
 
-      <div className="px-4 flex flex-col gap-4 mt-4">
-        <div
-          className="mtcp-credential-card overflow-hidden"
-          style={{
-            background: themeStyles.credentialBackground,
-            position: "relative",
-          }}
-        >
-          <div className="credential-watermark" style={{ opacity: 0.42 }}>
-            <svg width="220" height="220" viewBox="0 0 220 220" fill="none">
-              <circle cx="180" cy="180" r="100" stroke="#BFD3FF" strokeWidth="22" fill="none" />
-              <circle cx="180" cy="180" r="65" stroke="#BFD3FF" strokeWidth="14" fill="none" />
-              <circle cx="180" cy="180" r="32" stroke="#BFD3FF" strokeWidth="9" fill="none" />
-            </svg>
-          </div>
+      <div className="mt-4 flex flex-col gap-4 px-4">
+        <CredentialFlipCard affiliate={affiliate} />
 
-          <div
-            className="relative flex items-center justify-between px-5 py-4"
-            style={{ borderBottom: "1px solid rgba(191,211,255,0.22)" }}
-          >
-            <div className="flex items-center gap-3">
-              <MtcpLogo size="sm" variant="light" />
-              <div>
-                <p className="text-[11px] font-extrabold tracking-[0.16em] uppercase" style={{ color: "rgba(255,255,255,0.96)" }}>
-                  {institutionalInfo.shortName}
-                </p>
-                <p className="text-[9px] leading-tight font-semibold" style={{ color: "rgba(255,255,255,0.72)", maxWidth: 172 }}>
-                  {institutionalInfo.fullName}
-                </p>
-              </div>
-            </div>
-            <StatusBadge status={affiliate.estado} size="sm" />
-          </div>
-
-          <div className="relative px-5 pt-5 pb-4">
-            <p className="text-[9px] font-extrabold uppercase tracking-[0.14em]" style={{ color: "#BFD3FF" }}>
-              Nombre y apellido
-            </p>
-            <p className="text-2xl font-extrabold mt-1 leading-tight text-balance" style={{ color: "#ffffff" }}>
-              {affiliate.nombreCompleto}
-            </p>
-          </div>
-
-          <div
-            className="relative grid grid-cols-2 gap-x-5 gap-y-4 px-5 pb-5"
-            style={{ borderTop: "1px solid rgba(191,211,255,0.22)", paddingTop: "1rem" }}
-          >
-            <FieldBlock label="DNI" value={affiliate.dni} />
-            <FieldBlock label="N° Socio" value={affiliate.socio} />
-            <FieldBlock label="Sede" value={affiliate.sede} />
-            <FieldBlock label="Empresa" value={affiliate.empresa} />
-            <FieldBlock label="Fecha de alta" value={affiliate.fechaAlta} />
-            <FieldBlock label="Vencimiento" value={affiliate.fechaVencimiento} />
-          </div>
-
-          <div
-            className="relative px-5 py-2.5 flex items-center justify-between"
-            style={{ background: "rgba(7,20,48,0.38)", borderTop: "1px solid rgba(191,211,255,0.18)" }}
-          >
-            <p className="text-[9px] uppercase tracking-widest font-bold" style={{ color: "rgba(255,255,255,0.62)" }}>
-              {institutionalInfo.shortName} Patagonia
-            </p>
-            <p className="text-[9px] font-semibold" style={{ color: "rgba(255,255,255,0.62)" }}>
-              credencial-digital.mtcp.org.ar
-            </p>
-          </div>
-        </div>
-
-        <div className="mtcp-card px-5 py-4 flex items-center justify-between gap-3">
+        <div className="mtcp-card flex items-center justify-between gap-3 px-5 py-4">
           <StatusBadge status={affiliate.estado} />
-          <p className="text-sm font-bold text-right" style={{ color: "var(--muted-foreground)" }}>
+          <p className="text-right text-sm font-bold" style={{ color: "var(--muted-foreground)" }}>
             {msg.text}
           </p>
         </div>
 
         <button
           onClick={onBack}
-          className="mtcp-button-secondary w-full py-3.5 text-sm font-extrabold flex items-center justify-center gap-2 transition-all active:scale-[0.98] active:opacity-80"
+          className="mtcp-button-secondary flex w-full items-center justify-center gap-2 py-3.5 text-sm font-extrabold transition-all active:scale-[0.98] active:opacity-80"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M15 18l-6-6 6-6" />

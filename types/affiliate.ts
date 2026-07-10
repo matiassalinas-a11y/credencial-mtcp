@@ -4,6 +4,7 @@ export interface Affiliate {
   id: string
   nombreCompleto: string
   nombreCorto: string
+  beneficiaryName?: string
   dni: string
   socio: string
   sede: string
