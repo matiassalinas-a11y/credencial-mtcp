@@ -19,7 +19,6 @@ import type { Benefit } from "@/types/benefit"
 import type { AppScreen } from "@/types/navigation"
 import { institutionalInfo } from "@/data/shared-content"
 import { getFeaturedBenefits } from "@/services/benefitService"
-import MtcpLogo from "@/components/MtcpLogo"
 import SectionHero from "@/components/SectionHero"
 
 interface HomeScreenProps {
@@ -225,13 +224,12 @@ export default function HomeScreen({ affiliate, onNavigate, onOpenBenefit }: Hom
   return (
     <div className="screen-scroll screen-enter">
       <SectionHero
-        eyebrow={`Bienvenido/a a ${institutionalInfo.shortName}`}
+        eyebrow="Bienvenido/a"
         title={`Hola, ${affiliate.nombreCorto}`}
         subtitle="Tu espacio digital de afiliado."
-        imageSrc="/assets/heroes/home-hero-worker.svg"
-      >
-        <MtcpLogo size="sm" variant="light" />
-      </SectionHero>
+        imageSrc="/assets/heroes/home-building-mtcp.jpg"
+        imagePosition="center 34%"
+      />
 
       <div className="px-4 -mt-8">
         <div className="mtcp-card overflow-hidden">

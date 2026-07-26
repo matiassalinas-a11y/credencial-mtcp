@@ -5,6 +5,7 @@ interface SectionHeroProps {
   title: string
   subtitle?: string
   imageSrc: string
+  imagePosition?: string
   compact?: boolean
   variant?: "default" | "compact" | "short"
   children?: ReactNode
@@ -15,6 +16,7 @@ export default function SectionHero({
   title,
   subtitle,
   imageSrc,
+  imagePosition,
   compact = false,
   variant,
   children,
@@ -36,7 +38,7 @@ export default function SectionHero({
           url(${imageSrc})
         `,
         backgroundSize: "cover",
-        backgroundPosition: isShort ? "center 48%" : "center",
+        backgroundPosition: imagePosition ?? (isShort ? "center 48%" : "center"),
       }}
     >
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,14,32,0.18)_0%,rgba(5,14,32,0.08)_42%,rgba(5,14,32,0.42)_100%)]" />
