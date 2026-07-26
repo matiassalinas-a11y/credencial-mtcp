@@ -1,7 +1,5 @@
+import Image from "next/image"
 import { brand } from "@/config/brand"
-import { appTexts, institutionalInfo } from "@/data/shared-content"
-import { themeStyles } from "@/lib/themeStyles"
-import MtcpLogo from "@/components/MtcpLogo"
 
 interface SplashScreenProps {
   onEnter: () => void
@@ -10,32 +8,42 @@ interface SplashScreenProps {
 export default function SplashScreen({ onEnter }: SplashScreenProps) {
   return (
     <div
-      className="flex flex-col items-center justify-between min-h-dvh px-6 py-14 screen-enter"
-      style={{ background: themeStyles.headerBackground }}
+      className="relative flex min-h-dvh flex-col items-center justify-between overflow-hidden px-6 py-14 screen-enter"
+      style={{
+        backgroundImage: `
+          linear-gradient(180deg, rgba(7, 21, 45, 0.78) 0%, rgba(16, 42, 102, 0.72) 42%, rgba(20, 91, 184, 0.78) 100%),
+          linear-gradient(135deg, rgba(11, 36, 72, 0.82), rgba(37, 99, 235, 0.64)),
+          url("/assets/heroes/splash-worker-uocra.png")
+        `,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
     >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,255,255,0.10),transparent_28%),linear-gradient(180deg,rgba(4,12,28,0.20)_0%,rgba(4,12,28,0.04)_44%,rgba(4,12,28,0.36)_100%)]" />
+
       <div
-        className="self-end rounded-full px-3 py-1 text-[10px] font-bold tracking-widest uppercase"
+        className="relative self-end rounded-full px-3 py-1 text-[10px] font-bold tracking-widest uppercase backdrop-blur"
         style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.54)", border: "1px solid rgba(255,255,255,0.16)" }}
       >
         v1.0 - MVP
       </div>
 
-      <div className="flex flex-col items-center gap-10 w-full">
-        <MtcpLogo size="xl" variant="light" />
-
-        <div className="flex flex-col items-center gap-3 text-center">
-          <h1
-            className="text-4xl font-extrabold tracking-widest"
-            style={{ color: "#ffffff", letterSpacing: "0.22em" }}
-          >
-            {institutionalInfo.shortName}
-          </h1>
-          <p
-            className="text-sm font-medium leading-relaxed text-balance max-w-[270px]"
-            style={{ color: "rgba(255,255,255,0.68)" }}
-          >
-            {institutionalInfo.fullName}
-          </p>
+      <div className="relative flex w-full flex-col items-center gap-8">
+        <div className="flex flex-col items-center gap-5 text-center">
+          <div className="w-full max-w-[300px] px-2">
+            <Image
+              src="/assets/heroes/mtcp-logo-full.png"
+              alt="M.T.C.P. Mutual de los Trabajadores de la Construcción de la Patagonia"
+              width={1848}
+              height={671}
+              priority
+              className="h-auto w-full object-contain"
+              style={{
+                filter: "brightness(0) invert(1) drop-shadow(0 14px 32px rgba(0,0,0,0.22))",
+                opacity: 0.96,
+              }}
+            />
+          </div>
 
           <div
             className="w-10 h-px mt-2"
@@ -43,15 +51,15 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
           />
 
           <p
-            className="text-xs font-bold uppercase tracking-[0.18em] mt-1"
-            style={{ color: "rgba(255,255,255,0.46)" }}
+            className="mt-1 text-sm font-bold tracking-[0.08em]"
+            style={{ color: "rgba(255,255,255,0.58)" }}
           >
-            {appTexts.credential.title}
+            CONDUCCIÓN RAÚL SILVA
           </p>
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-4 w-full max-w-sm">
+      <div className="relative flex w-full max-w-sm flex-col items-center gap-4">
         <button
           onClick={onEnter}
           className="w-full py-4 rounded-full text-base font-extrabold tracking-wide transition-all active:scale-[0.98] active:opacity-90"

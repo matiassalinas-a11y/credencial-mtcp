@@ -1,12 +1,34 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import {
+  useMemo,
+  useRef,
+  useState,
+  type ComponentType,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react"
 import {
   ArrowRight,
+  BookOpen,
+  BriefcaseBusiness,
+  CalendarDays,
+  Car,
   ChevronDown,
+  FerrisWheel,
+  GraduationCap,
+  HardHat,
+  HeartPulse,
+  Home,
   MapPinned,
+  MessageCircle,
+  Phone,
   Search,
+  Shirt,
   Sparkles,
+  Utensils,
+  Plane,
 } from "lucide-react"
 import type { Affiliate } from "@/types/affiliate"
 import type { Benefit } from "@/types/benefit"
@@ -16,7 +38,7 @@ import {
   filterBenefits,
   getFeaturedBenefits,
 } from "@/services/benefitService"
-import { themeStyles } from "@/lib/themeStyles"
+import SectionHero from "@/components/SectionHero"
 
 interface BenefitsScreenProps {
   affiliate: Affiliate
@@ -37,6 +59,21 @@ const fixedDelegations = [
   "Gobernador Gregores",
 ]
 
+const categoryIcons: Record<string, ComponentType<{ size?: number; strokeWidth?: number }>> = {
+  gastronomia: Utensils,
+  turismo: Plane,
+  automotor: Car,
+  hogar: Home,
+  educacion: GraduationCap,
+  construccion: HardHat,
+  bienestar: HeartPulse,
+  eventos: CalendarDays,
+  indumentaria: Shirt,
+  libreria: BookOpen,
+  recreacion: FerrisWheel,
+  servicios: BriefcaseBusiness,
+}
+
 function getDelegationOptions(): string[] {
   const sharedCities = delegations
     .filter((delegation) => delegation.published)
@@ -46,66 +83,325 @@ function getDelegationOptions(): string[] {
   return Array.from(new Set([...fixedDelegations, ...sharedCities]))
 }
 
-function BenefitCover({ benefit, compact = false }: { benefit: Benefit; compact?: boolean }) {
+function normalizeKey(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+}
+
+function getContactSummary(benefit: Benefit): string {
+  if (benefit.whatsapp) return "WhatsApp disponible"
+  if (benefit.phone) return benefit.phone
+  if (benefit.address) return benefit.address
+  return benefit.delegation === "Todas" ? benefit.region : benefit.delegation
+}
+
+function getCtaLabel(benefit: Benefit): string {
+  const name = normalizeKey(benefit.name)
+
+  if (benefit.whatsapp && name.includes("beauty")) return "Turnos online"
+  if (name.includes("materiales")) return "Consultar materiales"
+  if (benefit.whatsapp) return "Consultar"
+  return "Ver beneficio"
+}
+
+function BenefitCover({
+  benefit,
+  size = "large",
+}: {
+  benefit: Benefit
+  size?: "large" | "medium" | "compact"
+}) {
+  const minHeight = size === "large" ? 172 : size === "medium" ? 132 : 108
+
   return (
     <div
       className="relative overflow-hidden"
       style={{
-        minHeight: compact ? 112 : 150,
+        minHeight,
         background: benefit.coverGradient,
       }}
     >
-      <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-white/16" />
-      <div className="absolute -left-10 bottom-0 h-24 w-24 rounded-full bg-white/10" />
-      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/28 to-transparent" />
+      <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.18),transparent_36%,rgba(255,255,255,0.08)_72%,transparent)]" />
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#07152d]/48 to-transparent" />
       <div className="relative flex h-full min-h-[inherit] flex-col justify-between p-4">
-        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/18 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.10em] text-white backdrop-blur">
-          <Sparkles size={12} strokeWidth={2.4} />
-          {benefit.category}
-        </span>
-        <p className="text-xl font-extrabold leading-tight text-white">
-          {benefit.discount}
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/22 bg-white/16 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.10em] text-white backdrop-blur">
+            <Sparkles size={12} strokeWidth={2.4} />
+            {benefit.category}
+          </span>
+          {benefit.featured && (
+            <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em]" style={{ color: "var(--primary)" }}>
+              Destacado
+            </span>
+          )}
+        </div>
+
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-white/72">
+            Beneficio M.T.C.P.
+          </p>
+          <p className={size === "compact" ? "mt-1 text-base font-extrabold leading-tight text-white" : "mt-1 text-2xl font-extrabold leading-tight text-white"}>
+            {benefit.discount}
+          </p>
+        </div>
       </div>
     </div>
   )
 }
 
-function FeaturedBenefitCard({ benefit, onOpenBenefit }: { benefit: Benefit; onOpenBenefit: (benefitSlug: string) => void }) {
+function useDragClickGuard(onOpen: () => void) {
+  const pointerStart = useRef({ x: 0, y: 0 })
+  const dragged = useRef(false)
+
+  return {
+    onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+      pointerStart.current = { x: event.clientX, y: event.clientY }
+      dragged.current = false
+    },
+    onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
+      const deltaX = Math.abs(event.clientX - pointerStart.current.x)
+      const deltaY = Math.abs(event.clientY - pointerStart.current.y)
+
+      if (deltaX > 8 || deltaY > 8) {
+        dragged.current = true
+      }
+    },
+    onClick(event: ReactMouseEvent<HTMLButtonElement>) {
+      if (dragged.current) {
+        event.preventDefault()
+        event.stopPropagation()
+        dragged.current = false
+        return
+      }
+
+      onOpen()
+    },
+  }
+}
+
+function useMouseDragScroll() {
+  const dragState = useRef({
+    active: false,
+    startX: 0,
+    scrollLeft: 0,
+  })
+
+  return {
+    onPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+      if (event.pointerType !== "mouse") return
+
+      dragState.current = {
+        active: true,
+        startX: event.clientX,
+        scrollLeft: event.currentTarget.scrollLeft,
+      }
+    },
+    onPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+      if (!dragState.current.active) return
+
+      const deltaX = event.clientX - dragState.current.startX
+      event.currentTarget.scrollLeft = dragState.current.scrollLeft - deltaX
+    },
+    onPointerUp() {
+      dragState.current.active = false
+    },
+    onPointerCancel() {
+      dragState.current.active = false
+    },
+  }
+}
+
+function SectionTitle({
+  label,
+  title,
+  subtitle,
+  action,
+}: {
+  label?: string
+  title: string
+  subtitle?: string
+  action?: ReactNode
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        {label && <p className="mtcp-section-label">{label}</p>}
+        <h2 className="mt-1 text-lg font-extrabold leading-tight" style={{ color: "var(--foreground)" }}>
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="mt-1 text-xs font-medium leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+            {subtitle}
+          </p>
+        )}
+      </div>
+      {action}
+    </div>
+  )
+}
+
+function FeaturedBenefitCard({
+  benefit,
+  onOpenBenefit,
+}: {
+  benefit: Benefit
+  onOpenBenefit: (benefitSlug: string) => void
+}) {
+  const clickGuard = useDragClickGuard(() => onOpenBenefit(benefit.slug))
+
   return (
     <button
       type="button"
-      onClick={() => onOpenBenefit(benefit.slug)}
-      className="w-[236px] flex-none overflow-hidden rounded-[20px] text-left transition-all active:scale-[0.98] active:opacity-85"
-      style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)" }}
+      {...clickGuard}
+      className="mtcp-interactive-card w-[84vw] min-w-[292px] max-w-[342px] flex-none snap-start overflow-hidden text-left"
     >
-      <BenefitCover benefit={benefit} compact />
-      <div className="p-4">
-        <p className="text-sm font-extrabold leading-tight" style={{ color: "var(--foreground)" }}>
-          {benefit.name}
-        </p>
-        <p className="mt-1 overflow-hidden text-xs font-medium leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]" style={{ color: "var(--muted-foreground)" }}>
+      <BenefitCover benefit={benefit} />
+      <div className="flex min-h-[206px] flex-col p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-base font-extrabold leading-tight" style={{ color: "var(--foreground)" }}>
+              {benefit.name}
+            </p>
+            <p className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold" style={{ color: "var(--primary)" }}>
+              <MapPinned size={12} strokeWidth={2.3} />
+              {benefit.delegation === "Todas" ? benefit.region : benefit.delegation}
+            </p>
+          </div>
+          <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
+            <ArrowRight size={15} strokeWidth={2.6} />
+          </span>
+        </div>
+
+        <p className="mt-3 overflow-hidden text-sm font-medium leading-relaxed [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]" style={{ color: "var(--muted-foreground)" }}>
           {benefit.shortDescription}
         </p>
-        <p className="mt-3 inline-flex items-center gap-1 text-[10px] font-bold" style={{ color: "var(--primary)" }}>
-          <MapPinned size={12} strokeWidth={2.3} />
-          {benefit.region}
-        </p>
+
+        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+          <span className="inline-flex min-w-0 items-center gap-1.5 text-[11px] font-bold" style={{ color: "var(--muted-foreground)" }}>
+            {benefit.whatsapp ? <MessageCircle size={13} strokeWidth={2.3} /> : <Phone size={13} strokeWidth={2.3} />}
+            <span className="truncate">{getContactSummary(benefit)}</span>
+          </span>
+          <span className="rounded-full px-3 py-1.5 text-xs font-extrabold" style={{ background: "var(--primary)", color: "#ffffff" }}>
+            {getCtaLabel(benefit)}
+          </span>
+        </div>
       </div>
     </button>
   )
 }
 
-function BenefitCard({ benefit, onOpenBenefit }: { benefit: Benefit; onOpenBenefit: (benefitSlug: string) => void }) {
+function CategoryCard({
+  category,
+  active,
+  onSelect,
+}: {
+  category: (typeof benefitCategories)[number]
+  active: boolean
+  onSelect: () => void
+}) {
+  const Icon = categoryIcons[normalizeKey(category)] ?? BriefcaseBusiness
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className="min-h-[112px] rounded-[20px] px-4 py-4 text-left transition-all active:scale-[0.98]"
+      style={{
+        background: active
+          ? "linear-gradient(135deg, var(--primary), var(--primary-dark))"
+          : "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)",
+        border: active ? "1px solid var(--primary)" : "1px solid rgba(20, 91, 184, 0.09)",
+        boxShadow: active ? "var(--shadow-button)" : "var(--shadow-card)",
+        color: active ? "#ffffff" : "var(--foreground)",
+      }}
+    >
+      <span
+        className="flex h-11 w-11 items-center justify-center rounded-[15px]"
+        style={{
+          background: active ? "rgba(255,255,255,0.16)" : "var(--secondary)",
+          color: active ? "#ffffff" : "var(--primary)",
+        }}
+      >
+        <Icon size={22} strokeWidth={2.2} />
+      </span>
+      <span className="mt-3 block text-sm font-extrabold leading-tight">
+        {category}
+      </span>
+    </button>
+  )
+}
+
+function RecentBenefitCard({
+  benefit,
+  onOpenBenefit,
+}: {
+  benefit: Benefit
+  onOpenBenefit: (benefitSlug: string) => void
+}) {
   return (
     <button
       type="button"
       onClick={() => onOpenBenefit(benefit.slug)}
-      className="mtcp-card overflow-hidden text-left transition-all active:scale-[0.98] active:opacity-85"
+      className="mtcp-interactive-card overflow-hidden text-left"
+    >
+      <BenefitCover benefit={benefit} size="medium" />
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em]" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
+                {benefit.category}
+              </span>
+              <span className="rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em]" style={{ background: "var(--success-soft)", color: "var(--status-active-fg)" }}>
+                Nuevo
+              </span>
+            </div>
+            <p className="mt-3 text-base font-extrabold leading-tight" style={{ color: "var(--foreground)" }}>
+              {benefit.name}
+            </p>
+          </div>
+          <ArrowRight size={18} strokeWidth={2.4} className="mt-1 flex-shrink-0" style={{ color: "var(--primary)" }} />
+        </div>
+        <p className="mt-2 text-sm font-extrabold" style={{ color: "var(--primary)" }}>
+          {benefit.discount}
+        </p>
+        <p className="mt-2 overflow-hidden text-xs font-medium leading-relaxed [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]" style={{ color: "var(--muted-foreground)" }}>
+          {benefit.shortDescription}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold" style={{ background: "var(--surface-soft)", color: "var(--muted-foreground)" }}>
+            <MapPinned size={12} strokeWidth={2.2} />
+            {benefit.delegation === "Todas" ? benefit.region : benefit.delegation}
+          </span>
+          {benefit.paymentMethods?.[0] && (
+            <span className="rounded-full px-2.5 py-1 text-[10px] font-bold" style={{ background: "var(--surface-soft)", color: "var(--muted-foreground)" }}>
+              {benefit.paymentMethods[0]}
+            </span>
+          )}
+        </div>
+      </div>
+    </button>
+  )
+}
+
+function CompactBenefitCard({
+  benefit,
+  onOpenBenefit,
+}: {
+  benefit: Benefit
+  onOpenBenefit: (benefitSlug: string) => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpenBenefit(benefit.slug)}
+      className="mtcp-interactive-card overflow-hidden text-left"
     >
       <div className="flex">
-        <div className="w-[104px] flex-shrink-0">
-          <BenefitCover benefit={benefit} compact />
+        <div className="w-[108px] flex-shrink-0">
+          <BenefitCover benefit={benefit} size="compact" />
         </div>
         <div className="min-w-0 flex-1 p-4">
           <div className="flex items-start justify-between gap-3">
@@ -113,19 +409,20 @@ function BenefitCard({ benefit, onOpenBenefit }: { benefit: Benefit; onOpenBenef
               <p className="text-sm font-extrabold leading-tight" style={{ color: "var(--foreground)" }}>
                 {benefit.name}
               </p>
-              <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.08em]" style={{ color: "var(--muted-foreground)" }}>
+              <p className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.08em]" style={{ color: "var(--primary)" }}>
                 {benefit.category}
               </p>
             </div>
-            <ArrowRight size={17} strokeWidth={2.4} className="mt-1 flex-shrink-0" style={{ color: "var(--primary)" }} />
+            <span className="grid h-7 w-7 flex-shrink-0 place-items-center rounded-full" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
+              <ArrowRight size={14} strokeWidth={2.6} />
+            </span>
           </div>
 
+          <p className="mt-2 text-xs font-extrabold" style={{ color: "var(--primary)" }}>
+            {benefit.discount}
+          </p>
           <p className="mt-2 overflow-hidden text-xs font-medium leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]" style={{ color: "var(--muted-foreground)" }}>
             {benefit.shortDescription}
-          </p>
-          <p className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold" style={{ color: "var(--primary)" }}>
-            <MapPinned size={12} strokeWidth={2.3} />
-            {benefit.delegation === "Todas" ? benefit.region : benefit.delegation}
           </p>
         </div>
       </div>
@@ -137,8 +434,13 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
   const [query, setQuery] = useState("")
   const [category, setCategory] = useState<(typeof benefitCategories)[number]>("Todos")
   const [delegation, setDelegation] = useState("Todas las sedes")
+  const carouselDrag = useMouseDragScroll()
 
   const delegationOptions = useMemo(() => getDelegationOptions(), [])
+  const editorialCategories = useMemo(
+    () => benefitCategories.filter((item) => !["Todos", "Kids", "Otro"].includes(item)),
+    []
+  )
   const results = useMemo(
     () =>
       filterBenefits({
@@ -156,27 +458,92 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
       ),
     [results]
   )
+  const recent = useMemo(
+    () => [...results].sort((a, b) => b.sortOrder - a.sortOrder).slice(0, 3),
+    [results]
+  )
 
   return (
     <div className="screen-scroll screen-enter">
-      <div className="relative overflow-hidden px-5 pb-10 pt-12" style={{ background: themeStyles.headerBackground }}>
-        <div className="absolute -right-12 top-3 h-36 w-36 rounded-full bg-white/10" />
-        <div className="absolute -left-16 bottom-0 h-32 w-32 rounded-full bg-white/5" />
-        <div className="relative">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: "rgba(255,255,255,0.58)" }}>
-            {institutionalInfo.shortName}
-          </p>
-          <h1 className="mt-1 text-2xl font-extrabold" style={{ color: "#ffffff" }}>
-            Beneficios
-          </h1>
-          <p className="mt-1 max-w-[300px] text-sm font-medium leading-relaxed" style={{ color: "rgba(255,255,255,0.72)" }}>
-            Descuentos y convenios para afiliados M.T.C.P.
-          </p>
-        </div>
-      </div>
+      <SectionHero
+        eyebrow={institutionalInfo.shortName}
+        title="Beneficios"
+        subtitle="Descuentos y convenios para afiliados M.T.C.P."
+        imageSrc="/assets/heroes/benefits-hero.svg"
+        variant="short"
+      />
 
-      <div className="-mt-7 flex flex-col gap-5 px-4 pb-8">
-        <section className="mtcp-card space-y-3 px-4 py-4">
+      <div className="mt-3 flex flex-col gap-7 px-4 pb-8">
+        <section className="flex flex-col gap-3">
+          <SectionTitle
+            label="Promociones exclusivas"
+            title="Beneficios destacados"
+            subtitle="Descuentos y promociones exclusivas para afiliados."
+            action={
+              <span className="rounded-full px-2.5 py-1 text-[10px] font-extrabold" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
+                {featured.length}
+              </span>
+            }
+          />
+
+          {featured.length > 0 ? (
+            <div
+              {...carouselDrag}
+              className="-mx-4 flex snap-x snap-mandatory flex-nowrap gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-4 pb-2 [touch-action:pan-x] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [scrollbar-width:none] active:cursor-grabbing md:cursor-grab [&::-webkit-scrollbar]:hidden"
+            >
+              {featured.map((benefit) => (
+                <FeaturedBenefitCard key={benefit.id} benefit={benefit} onOpenBenefit={onOpenBenefit} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState />
+          )}
+        </section>
+
+        <section className="flex flex-col gap-3">
+          <SectionTitle
+            title="Categorías de Convenios"
+            subtitle="Explorá nuestras categorías de servicios pensadas para vos."
+          />
+          <div className="grid grid-cols-2 gap-3">
+            {editorialCategories.map((item) => (
+              <CategoryCard
+                key={item}
+                category={item}
+                active={category === item}
+                onSelect={() => setCategory(item)}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-3">
+          <SectionTitle
+            title="Últimos convenios agregados"
+            subtitle="Descubrí los nuevos acuerdos que hemos conseguido para nuestros afiliados."
+          />
+          {recent.length > 0 ? (
+            recent.map((benefit) => (
+              <RecentBenefitCard key={benefit.id} benefit={benefit} onOpenBenefit={onOpenBenefit} />
+            ))
+          ) : (
+            <EmptyState />
+          )}
+        </section>
+
+        <section className="mtcp-filter-panel space-y-3 px-4 py-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="mtcp-section-label">Buscar en beneficios</p>
+              <p className="mt-1 text-xs font-semibold" style={{ color: "var(--muted-foreground)" }}>
+                Usá búsqueda, sede o categoría para afinar el listado.
+              </p>
+            </div>
+            <span className="rounded-full px-2.5 py-1 text-[10px] font-extrabold" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
+              {results.length}
+            </span>
+          </div>
+
           <label className="relative block">
             <Search size={18} strokeWidth={2.2} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "var(--primary)" }} />
             <input
@@ -186,7 +553,7 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
               className="w-full rounded-[16px] py-3.5 pl-11 pr-4 text-sm font-semibold outline-none"
               style={{
                 background: "var(--surface-soft)",
-                border: "1px solid var(--border)",
+                border: "1px solid rgba(20, 91, 184, 0.10)",
                 color: "var(--foreground)",
               }}
             />
@@ -200,7 +567,7 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
               className="w-full appearance-none rounded-[16px] py-3.5 pl-11 pr-10 text-sm font-extrabold outline-none"
               style={{
                 background: "var(--surface-soft)",
-                border: "1px solid var(--border)",
+                border: "1px solid rgba(20, 91, 184, 0.10)",
                 color: "var(--foreground)",
               }}
             >
@@ -212,65 +579,28 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
             </select>
             <ChevronDown size={17} strokeWidth={2.5} className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: "var(--muted-foreground)" }} />
           </label>
-        </section>
 
-        <section className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {benefitCategories.map((item) => {
-            const active = category === item
-            return (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setCategory(item)}
-                className="flex-none rounded-full px-3.5 py-2 text-xs font-extrabold transition-all active:scale-95"
-                style={{
-                  background: active ? "var(--primary)" : "var(--card)",
-                  color: active ? "#ffffff" : "var(--muted-foreground)",
-                  border: active ? "1px solid var(--primary)" : "1px solid var(--border)",
-                  boxShadow: active ? "var(--shadow-button)" : "none",
-                }}
-              >
-                {item}
-              </button>
-            )
-          })}
-        </section>
-
-        <section className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="mtcp-section-label">Beneficios destacados</p>
-              <h2 className="mt-1 text-lg font-extrabold" style={{ color: "var(--foreground)" }}>
-                Destacados para vos
-              </h2>
-            </div>
-            <span className="rounded-full px-2.5 py-1 text-[10px] font-extrabold" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
-              {featured.length}
-            </span>
-          </div>
-
-          {featured.length > 0 ? (
-            <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {featured.map((benefit) => (
-                <FeaturedBenefitCard key={benefit.id} benefit={benefit} onOpenBenefit={onOpenBenefit} />
-              ))}
-            </div>
-          ) : (
-            <EmptyState />
+          {category !== "Todos" && (
+            <button
+              type="button"
+              onClick={() => setCategory("Todos")}
+              className="mtcp-button-secondary flex min-h-0 w-full items-center justify-center gap-2 py-3 text-xs font-extrabold"
+            >
+              Ver todas las categorías
+            </button>
           )}
         </section>
 
         <section className="flex flex-col gap-3">
-          <div>
-            <p className="mtcp-section-label">Todos los beneficios</p>
-            <h2 className="mt-1 text-lg font-extrabold" style={{ color: "var(--foreground)" }}>
-              {results.length} resultado{results.length === 1 ? "" : "s"}
-            </h2>
-          </div>
+          <SectionTitle
+            label="Listado general"
+            title="Todos los beneficios"
+            subtitle={`${results.length} resultado${results.length === 1 ? "" : "s"} disponible${results.length === 1 ? "" : "s"}.`}
+          />
 
           {results.length > 0 ? (
             results.map((benefit) => (
-              <BenefitCard key={benefit.id} benefit={benefit} onOpenBenefit={onOpenBenefit} />
+              <CompactBenefitCard key={benefit.id} benefit={benefit} onOpenBenefit={onOpenBenefit} />
             ))
           ) : (
             <EmptyState />

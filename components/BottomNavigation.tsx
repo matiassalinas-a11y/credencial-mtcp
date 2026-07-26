@@ -24,16 +24,16 @@ export default function BottomNavigation({ active, onChange }: BottomNavigationP
 
   return (
     <nav
-      className="flex-shrink-0 px-2 pt-2"
+      className="flex-shrink-0 px-3 pt-2"
       style={{
-        borderTop: "1px solid var(--border)",
-        background: "rgba(255,255,255,0.96)",
-        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.4rem)",
+        borderTop: "1px solid rgba(20,91,184,0.08)",
+        background: "rgba(255,255,255,0.94)",
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.55rem)",
         boxShadow: "var(--shadow-nav)",
-        backdropFilter: "blur(16px)",
+        backdropFilter: "blur(18px)",
       }}
     >
-      <div className="flex items-stretch rounded-[20px]">
+      <div className="flex items-stretch rounded-[22px] border px-1" style={{ borderColor: "rgba(20,91,184,0.07)", background: "rgba(248,250,254,0.82)" }}>
         {items.map((item) => {
           const itemActive = isActive(item.id)
           const Icon = item.icon
@@ -42,7 +42,7 @@ export default function BottomNavigation({ active, onChange }: BottomNavigationP
             <button
               key={item.id}
               onClick={() => onChange(item.id)}
-              className="flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95"
+              className="relative flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95"
               style={{
                 minHeight: "58px",
                 color: itemActive ? "var(--primary)" : "var(--muted-foreground)",
@@ -52,15 +52,21 @@ export default function BottomNavigation({ active, onChange }: BottomNavigationP
               }}
               aria-current={itemActive ? "page" : undefined}
             >
+              {itemActive && (
+                <span
+                  className="absolute top-1 h-1 w-5 rounded-full"
+                  style={{ background: "var(--primary)" }}
+                />
+              )}
               <span
                 className="flex items-center justify-center"
                 style={{
-                  width: 42,
-                  height: 30,
+                  width: 44,
+                  height: 32,
                   borderRadius: 999,
-                  background: itemActive ? "var(--secondary)" : "transparent",
+                  background: itemActive ? "#ffffff" : "transparent",
                   color: itemActive ? "var(--primary)" : "var(--muted-foreground)",
-                  boxShadow: itemActive ? "inset 0 0 0 1px rgba(20,91,184,0.10)" : "none",
+                  boxShadow: itemActive ? "0 8px 18px rgba(16,42,102,0.10), inset 0 0 0 1px rgba(20,91,184,0.10)" : "none",
                   transition: "background 0.2s, color 0.2s, box-shadow 0.2s",
                 }}
               >

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 520" role="img" aria-label="Beneficios institucionales y comercios">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07152D"/>
+      <stop offset="0.52" stop-color="#102A66"/>
+      <stop offset="1" stop-color="#145BB8"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#DCEBFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="860" height="520" fill="url(#bg)"/>
+  <circle cx="708" cy="116" r="118" fill="#60A5FA" opacity=".14"/>
+  <circle cx="156" cy="420" r="170" fill="#38BDF8" opacity=".08"/>
+  <g transform="translate(150 140) scale(.74)">
+    <rect x="0" y="0" width="250" height="172" rx="30" fill="url(#card)" opacity=".68"/>
+    <path d="M34 52h182" stroke="#145BB8" stroke-opacity=".28" stroke-width="10" stroke-linecap="round"/>
+    <path d="M34 92h126" stroke="#145BB8" stroke-opacity=".18" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="194" cy="122" r="30" fill="#145BB8" opacity=".16"/>
+    <path d="M189 122h10M194 117v10" stroke="#145BB8" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(468 178) scale(.78)">
+    <rect x="0" y="0" width="284" height="206" rx="34" fill="#FFFFFF" opacity=".64"/>
+    <rect x="30" y="35" width="80" height="54" rx="16" fill="#145BB8" opacity=".18"/>
+    <rect x="126" y="35" width="128" height="16" rx="8" fill="#102A66" opacity=".30"/>
+    <rect x="126" y="66" width="92" height="12" rx="6" fill="#102A66" opacity=".18"/>
+    <path d="M36 136h210" stroke="#145BB8" stroke-opacity=".22" stroke-width="12" stroke-linecap="round"/>
+    <path d="M36 166h142" stroke="#145BB8" stroke-opacity=".14" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <path d="M0 360c162-62 294-60 466 6 152 58 256 54 394-16v170H0z" fill="#07152D" opacity=".34"/>
+</svg>

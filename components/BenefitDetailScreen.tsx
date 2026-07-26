@@ -8,8 +8,8 @@ import {
   Phone,
 } from "lucide-react"
 import type { ReactNode } from "react"
-import { getBenefitBySlug } from "@/services/benefitService"
 import { institutionalInfo } from "@/data/shared-content"
+import { getBenefitBySlug } from "@/services/benefitService"
 import { themeStyles } from "@/lib/themeStyles"
 
 interface BenefitDetailScreenProps {
@@ -44,6 +44,7 @@ export default function BenefitDetailScreen({ benefitSlug, onBack }: BenefitDeta
   return (
     <div className="screen-scroll screen-enter">
       <div className="relative overflow-hidden px-5 pb-6 pt-12" style={{ background: themeStyles.headerBackground }}>
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.16),transparent_36%,rgba(255,255,255,0.06)_70%,transparent)]" />
         <div className="relative z-10 flex items-center justify-between">
           <button
             type="button"
@@ -60,14 +61,13 @@ export default function BenefitDetailScreen({ benefitSlug, onBack }: BenefitDeta
       </div>
 
       <div className="-mt-1 pb-8">
-        <div className="mx-4 overflow-hidden rounded-[22px]" style={{ background: benefit.coverGradient, boxShadow: "var(--shadow-card)" }}>
-          <div className="relative min-h-[230px] overflow-hidden p-5">
-            <div className="absolute -right-16 -top-14 h-44 w-44 rounded-full bg-white/14" />
-            <div className="absolute -left-16 bottom-0 h-36 w-36 rounded-full bg-white/10" />
-            <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/32 to-transparent" />
+        <div className="mx-4 overflow-hidden rounded-[22px]" style={{ background: benefit.coverGradient, boxShadow: "var(--shadow-premium)" }}>
+          <div className="relative min-h-[226px] overflow-hidden p-5">
+            <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.18),transparent_35%,rgba(255,255,255,0.07)_76%,transparent)]" />
+            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#07152d]/48 to-transparent" />
 
-            <div className="relative flex min-h-[190px] flex-col justify-between">
-              <span className="inline-flex w-fit rounded-full bg-white/18 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white backdrop-blur">
+            <div className="relative flex min-h-[186px] flex-col justify-between">
+              <span className="inline-flex w-fit rounded-full border border-white/22 bg-white/16 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white backdrop-blur">
                 {benefit.category}
               </span>
               <div>
@@ -77,7 +77,7 @@ export default function BenefitDetailScreen({ benefitSlug, onBack }: BenefitDeta
                 <h1 className="mt-1 text-3xl font-extrabold leading-tight text-white">
                   {benefit.name}
                 </h1>
-                <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-extrabold" style={{ color: "var(--primary)" }}>
+                <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-extrabold" style={{ color: "var(--primary)" }}>
                   <BadgePercent size={15} strokeWidth={2.4} />
                   {benefit.discount}
                 </p>
@@ -147,13 +147,17 @@ export default function BenefitDetailScreen({ benefitSlug, onBack }: BenefitDeta
 
 function InfoRow({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3 px-5 py-3.5" style={{ borderBottom: "1px solid var(--border)" }}>
+    <div className="flex items-start gap-3 px-5 py-3.5" style={{ borderBottom: "1px solid rgba(20,91,184,0.08)" }}>
       <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[12px]" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-extrabold uppercase tracking-[0.12em]" style={{ color: "var(--muted-foreground)" }}>{label}</p>
-        <p className="mt-1 text-sm font-bold leading-snug" style={{ color: "var(--foreground)" }}>{value}</p>
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.12em]" style={{ color: "var(--muted-foreground)" }}>
+          {label}
+        </p>
+        <p className="mt-1 text-sm font-bold leading-snug" style={{ color: "var(--foreground)" }}>
+          {value}
+        </p>
       </div>
     </div>
   )

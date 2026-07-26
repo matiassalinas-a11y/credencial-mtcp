@@ -8,14 +8,19 @@ import {
   Plane,
   UserRound,
 } from "lucide-react"
-import type { ReactNode } from "react"
+import {
+  useRef,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react"
 import type { Affiliate } from "@/types/affiliate"
-import type { AppScreen } from "@/types/navigation"
 import type { Benefit } from "@/types/benefit"
+import type { AppScreen } from "@/types/navigation"
 import { institutionalInfo } from "@/data/shared-content"
 import { getFeaturedBenefits } from "@/services/benefitService"
-import { themeStyles } from "@/lib/themeStyles"
 import MtcpLogo from "@/components/MtcpLogo"
+import SectionHero from "@/components/SectionHero"
 
 interface HomeScreenProps {
   affiliate: Affiliate
@@ -97,42 +102,117 @@ function SimpleStatusBadge({ affiliate }: { affiliate: Affiliate }) {
   )
 }
 
-function FeaturedBenefitCard({ benefit, onOpenBenefit }: { benefit: Benefit; onOpenBenefit: (benefitSlug: string) => void }) {
+function useDragClickGuard(onOpen: () => void) {
+  const pointerStart = useRef({ x: 0, y: 0 })
+  const dragged = useRef(false)
+
+  return {
+    onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+      pointerStart.current = { x: event.clientX, y: event.clientY }
+      dragged.current = false
+    },
+    onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
+      const deltaX = Math.abs(event.clientX - pointerStart.current.x)
+      const deltaY = Math.abs(event.clientY - pointerStart.current.y)
+
+      if (deltaX > 8 || deltaY > 8) {
+        dragged.current = true
+      }
+    },
+    onClick(event: ReactMouseEvent<HTMLButtonElement>) {
+      if (dragged.current) {
+        event.preventDefault()
+        event.stopPropagation()
+        dragged.current = false
+        return
+      }
+
+      onOpen()
+    },
+  }
+}
+
+function useMouseDragScroll() {
+  const dragState = useRef({
+    active: false,
+    startX: 0,
+    scrollLeft: 0,
+  })
+
+  return {
+    onPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+      if (event.pointerType !== "mouse") return
+
+      dragState.current = {
+        active: true,
+        startX: event.clientX,
+        scrollLeft: event.currentTarget.scrollLeft,
+      }
+    },
+    onPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+      if (!dragState.current.active) return
+
+      const deltaX = event.clientX - dragState.current.startX
+      event.currentTarget.scrollLeft = dragState.current.scrollLeft - deltaX
+    },
+    onPointerUp() {
+      dragState.current.active = false
+    },
+    onPointerCancel() {
+      dragState.current.active = false
+    },
+  }
+}
+
+function FeaturedBenefitCard({
+  benefit,
+  onOpenBenefit,
+}: {
+  benefit: Benefit
+  onOpenBenefit: (benefitSlug: string) => void
+}) {
+  const clickGuard = useDragClickGuard(() => onOpenBenefit(benefit.slug))
+
   return (
     <button
       type="button"
-      onClick={() => onOpenBenefit(benefit.slug)}
-      className="w-[236px] flex-none overflow-hidden rounded-[20px] text-left transition-all active:scale-[0.98] active:opacity-85"
-      style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)" }}
+      {...clickGuard}
+      className="mtcp-interactive-card w-[82vw] min-w-[260px] max-w-[316px] flex-none snap-start overflow-hidden text-left"
     >
-      <div className="relative min-h-[132px] overflow-hidden p-4" style={{ background: benefit.coverGradient ?? "var(--brand-gradient)" }}>
-        <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-white/16" />
-        <div className="absolute -left-10 bottom-0 h-24 w-24 rounded-full bg-white/10" />
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/28 to-transparent" />
-        <div className="relative flex min-h-[100px] flex-col justify-between">
-          <span className="inline-flex w-fit rounded-full bg-white/18 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.10em] text-white backdrop-blur">
+      <div className="relative min-h-[134px] overflow-hidden p-4" style={{ background: benefit.coverGradient ?? "var(--brand-gradient)" }}>
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.18),transparent_36%,rgba(255,255,255,0.08)_72%,transparent)]" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#07152d]/42 to-transparent" />
+        <div className="relative flex min-h-[102px] flex-col justify-between">
+          <span className="inline-flex w-fit rounded-full border border-white/20 bg-white/16 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.10em] text-white backdrop-blur">
             {benefit.category}
           </span>
-          <p className="text-xl font-extrabold leading-tight text-white">
-            {benefit.discount}
-          </p>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-white/70">
+              Beneficio M.T.C.P.
+            </p>
+            <p className="mt-1 text-xl font-extrabold leading-tight text-white">
+              {benefit.discount}
+            </p>
+          </div>
         </div>
       </div>
 
       <div className="p-4">
-        <p className="text-sm font-extrabold leading-tight" style={{ color: "var(--foreground)" }}>
-          {benefit.name}
-        </p>
-        <p className="mt-1 overflow-hidden text-xs font-medium leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]" style={{ color: "var(--muted-foreground)" }}>
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-sm font-extrabold leading-tight" style={{ color: "var(--foreground)" }}>
+            {benefit.name}
+          </p>
+          <span className="grid h-7 w-7 flex-shrink-0 place-items-center rounded-full" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
+            <ArrowRight size={14} strokeWidth={2.6} />
+          </span>
+        </div>
+        <p className="mt-2 overflow-hidden text-xs font-medium leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]" style={{ color: "var(--muted-foreground)" }}>
           {benefit.shortDescription}
         </p>
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold" style={{ color: "var(--primary)" }}>
-            <MapPinned size={12} strokeWidth={2.3} />
-            {benefit.region}
-          </span>
-          <ArrowRight size={16} strokeWidth={2.4} style={{ color: "var(--primary)" }} />
-        </div>
+        <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-bold" style={{ color: "var(--primary)" }}>
+          <MapPinned size={12} strokeWidth={2.3} />
+          {benefit.region}
+        </span>
       </div>
     </button>
   )
@@ -140,38 +220,22 @@ function FeaturedBenefitCard({ benefit, onOpenBenefit }: { benefit: Benefit; onO
 
 export default function HomeScreen({ affiliate, onNavigate, onOpenBenefit }: HomeScreenProps) {
   const featuredBenefits = getFeaturedBenefits()
+  const carouselDrag = useMouseDragScroll()
 
   return (
     <div className="screen-scroll screen-enter">
-      <div
-        className="relative flex items-start justify-between overflow-hidden px-5 pb-12 pt-12"
-        style={{ background: themeStyles.headerBackground }}
+      <SectionHero
+        eyebrow={`Bienvenido/a a ${institutionalInfo.shortName}`}
+        title={`Hola, ${affiliate.nombreCorto}`}
+        subtitle="Tu espacio digital de afiliado."
+        imageSrc="/assets/heroes/home-hero-worker.svg"
       >
-        <div className="absolute -right-12 top-4 h-36 w-36 rounded-full bg-white/10" />
-        <div className="absolute -left-20 bottom-0 h-40 w-40 rounded-full bg-white/5" />
-
-        <div className="relative flex flex-col gap-1">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: "rgba(255,255,255,0.58)" }}>
-            Bienvenido/a a {institutionalInfo.shortName}
-          </p>
-          <h1 className="text-2xl font-extrabold" style={{ color: "#ffffff" }}>
-            Hola, {affiliate.nombreCorto}
-          </h1>
-          <p className="max-w-[250px] text-sm font-medium leading-relaxed" style={{ color: "rgba(255,255,255,0.70)" }}>
-            Tu espacio digital de afiliado.
-          </p>
-        </div>
-
-        <div className="relative">
-          <MtcpLogo size="sm" variant="light" />
-        </div>
-      </div>
+        <MtcpLogo size="sm" variant="light" />
+      </SectionHero>
 
       <div className="px-4 -mt-8">
         <div className="mtcp-card overflow-hidden">
           <div className="relative overflow-hidden px-5 pb-4 pt-5" style={{ background: "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)" }}>
-            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full pointer-events-none" style={{ background: "rgba(20,91,184,0.08)" }} />
-
             <div className="relative flex items-start justify-between gap-3">
               <div className="flex min-w-0 flex-col gap-1">
                 <p className="mtcp-section-label">Afiliado/a</p>
@@ -183,7 +247,7 @@ export default function HomeScreen({ affiliate, onNavigate, onOpenBenefit }: Hom
                 </p>
               </div>
 
-              <div className="flex-shrink-0 rounded-[14px] px-3 py-2 text-center" style={{ background: "var(--secondary)", border: "1px solid var(--border)" }}>
+              <div className="flex-shrink-0 rounded-[14px] px-3 py-2 text-center" style={{ background: "var(--secondary)", border: "1px solid rgba(20,91,184,0.10)" }}>
                 <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
                   Socio
                 </p>
@@ -194,11 +258,11 @@ export default function HomeScreen({ affiliate, onNavigate, onOpenBenefit }: Hom
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-3 px-5 py-3.5" style={{ borderTop: "1px solid var(--border)" }}>
+          <div className="flex items-center justify-between gap-3 px-5 py-3.5" style={{ borderTop: "1px solid rgba(20,91,184,0.08)" }}>
             <SimpleStatusBadge affiliate={affiliate} />
             <button
               onClick={() => onNavigate("credential")}
-              className="mtcp-button-primary flex items-center gap-2 px-4 py-2 text-sm font-extrabold transition-all active:scale-95 active:opacity-80"
+              className="mtcp-button-primary flex items-center gap-2 px-4 py-2 text-sm font-extrabold active:scale-95 active:opacity-85"
             >
               <IdCard size={15} strokeWidth={2.5} />
               Ver credencial
@@ -226,7 +290,10 @@ export default function HomeScreen({ affiliate, onNavigate, onOpenBenefit }: Hom
           </button>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto px-4 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          {...carouselDrag}
+          className="flex snap-x snap-mandatory flex-nowrap gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-4 pb-2 [touch-action:pan-x] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [scrollbar-width:none] active:cursor-grabbing md:cursor-grab [&::-webkit-scrollbar]:hidden"
+        >
           {featuredBenefits.map((benefit) => (
             <FeaturedBenefitCard key={benefit.id} benefit={benefit} onOpenBenefit={onOpenBenefit} />
           ))}
@@ -240,13 +307,8 @@ export default function HomeScreen({ affiliate, onNavigate, onOpenBenefit }: Hom
             <button
               key={link.id}
               onClick={() => onNavigate(link.id)}
-              className="flex items-center gap-3 rounded-[18px] px-4 py-3.5 text-left transition-all active:scale-[0.98] active:opacity-80"
-              style={{
-                background: "var(--card)",
-                border: "1px solid var(--border)",
-                boxShadow: "var(--shadow-card)",
-                cursor: "pointer",
-              }}
+              className="mtcp-interactive-card flex items-center gap-3 px-4 py-3.5 text-left"
+              style={{ cursor: "pointer" }}
             >
               <span className="flex h-[46px] w-[46px] flex-shrink-0 items-center justify-center rounded-[14px]" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
                 {link.icon}

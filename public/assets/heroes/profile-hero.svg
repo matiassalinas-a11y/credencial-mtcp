@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 520" role="img" aria-label="Perfil institucional de afiliado">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#06122A"/>
+      <stop offset="0.45" stop-color="#102A66"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <rect width="860" height="520" fill="url(#bg)"/>
+  <circle cx="670" cy="160" r="160" fill="#FFFFFF" opacity=".10"/>
+  <circle cx="210" cy="390" r="190" fill="#7DD3FC" opacity=".12"/>
+  <rect x="170" y="112" width="520" height="294" rx="42" fill="#FFFFFF" opacity=".12"/>
+  <rect x="202" y="148" width="456" height="222" rx="34" fill="#FFFFFF" opacity=".16"/>
+  <circle cx="306" cy="258" r="58" fill="#EAF2FF" opacity=".92"/>
+  <path d="M268 324c12-34 38-52 76-52s64 18 76 52" fill="#EAF2FF" opacity=".92"/>
+  <rect x="424" y="214" width="170" height="18" rx="9" fill="#FFFFFF" opacity=".52"/>
+  <rect x="424" y="254" width="220" height="14" rx="7" fill="#FFFFFF" opacity=".32"/>
+  <rect x="424" y="292" width="124" height="32" rx="16" fill="#DCFCE7" opacity=".88"/>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 520" role="img" aria-label="Nueva etapa institucional">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07152D"/>
+      <stop offset="0.5" stop-color="#102A66"/>
+      <stop offset="1" stop-color="#145BB8"/>
+    </linearGradient>
+  </defs>
+  <rect width="860" height="520" fill="url(#bg)"/>
+  <circle cx="646" cy="154" r="150" fill="#60A5FA" opacity=".18"/>
+  <circle cx="190" cy="396" r="210" fill="#38BDF8" opacity=".11"/>
+  <g transform="translate(274 120)">
+    <rect x="0" y="0" width="312" height="276" rx="42" fill="#FFFFFF" opacity=".13"/>
+    <rect x="34" y="38" width="244" height="200" rx="32" fill="#FFFFFF" opacity=".18"/>
+    <path d="M156 86v70l48 31" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" opacity=".76"/>
+    <circle cx="156" cy="156" r="92" fill="none" stroke="#FFFFFF" stroke-width="18" opacity=".42"/>
+  </g>
+  <path d="M0 390c140-54 263-55 416-4 159 54 276 54 444-8v142H0z" fill="#06122A" opacity=".36"/>
+</svg>

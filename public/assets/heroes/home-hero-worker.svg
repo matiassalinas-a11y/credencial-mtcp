@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 520" role="img" aria-label="Trabajador de la construcción con casco">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07152D"/>
+      <stop offset="0.48" stop-color="#102A66"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="helmet" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F8FAFC"/>
+      <stop offset="1" stop-color="#C8D9F6"/>
+    </linearGradient>
+    <radialGradient id="light" cx="0.68" cy="0.22" r="0.72">
+      <stop offset="0" stop-color="#7DD3FC" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#7DD3FC" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="860" height="520" fill="url(#bg)"/>
+  <rect width="860" height="520" fill="url(#light)"/>
+  <path d="M-40 418c134-95 259-102 402-48 120 45 232 51 538-68v218H-40z" fill="#081E43" opacity=".58"/>
+  <path d="M112 88h636" stroke="#FFFFFF" stroke-opacity=".10" stroke-width="2"/>
+  <path d="M95 142h520" stroke="#FFFFFF" stroke-opacity=".08" stroke-width="2"/>
+  <circle cx="630" cy="188" r="112" fill="#FFFFFF" opacity=".08"/>
+  <circle cx="704" cy="132" r="46" fill="#FFFFFF" opacity=".12"/>
+  <g transform="translate(474 168)">
+    <path d="M41 90c7-57 49-96 105-96 58 0 100 40 107 96z" fill="url(#helmet)"/>
+    <path d="M35 86h226c16 0 30 13 30 30H5c0-17 14-30 30-30z" fill="#E8F1FF"/>
+    <path d="M139 2v88" stroke="#102A66" stroke-opacity=".30" stroke-width="12" stroke-linecap="round"/>
+    <path d="M66 76c19-34 48-52 83-52 36 0 64 18 82 52" fill="none" stroke="#102A66" stroke-opacity=".18" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(170 218)">
+    <path d="M40 146c22-56 67-84 134-84h78c64 0 105 28 124 84l22 64H18z" fill="#0B2448"/>
+    <path d="M129 55c13 30 31 45 55 45 25 0 44-15 57-45v-54H129z" fill="#D7B58C"/>
+    <path d="M112 0c6-54 44-88 97-88 51 0 88 35 94 88 5 48-26 93-94 93-67 0-102-44-97-93z" fill="#C99D6C"/>
+    <path d="M114-3c2-50 40-83 95-83 55 0 91 33 94 83-41-18-100-21-189 0z" fill="#EAF2FF"/>
+    <path d="M85 190c48-21 94-15 139 18 52 38 100 47 145 19l20 62H63z" fill="#145BB8" opacity=".85"/>
+  </g>
+  <path d="M0 0h860v520H0z" fill="#06122A" opacity=".08"/>
+</svg>

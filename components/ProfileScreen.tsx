@@ -2,8 +2,8 @@ import { BadgeCheck, BriefcaseBusiness, Building2, CalendarDays, IdCard, LogOut,
 import type { ReactNode } from "react"
 import type { Affiliate } from "@/types/affiliate"
 import { institutionalInfo } from "@/data/shared-content"
-import { themeStyles } from "@/lib/themeStyles"
 import StatusBadge from "@/components/StatusBadge"
+import SectionHero from "@/components/SectionHero"
 
 interface ProfileScreenProps {
   affiliate: Affiliate
@@ -12,7 +12,7 @@ interface ProfileScreenProps {
 
 function DataRow({ icon, label, value, last }: { icon: ReactNode; label: string; value: string; last?: boolean }) {
   return (
-    <div className="flex items-start gap-3 py-3.5" style={{ borderBottom: last ? "none" : "1px solid var(--border)" }}>
+    <div className="flex items-start gap-3 py-3.5" style={{ borderBottom: last ? "none" : "1px solid rgba(20,91,184,0.08)" }}>
       <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[12px]" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
         {icon}
       </span>
@@ -38,38 +38,25 @@ export default function ProfileScreen({ affiliate, onLogout }: ProfileScreenProp
 
   return (
     <div className="screen-scroll screen-enter">
-      <div
-        className="relative flex flex-col items-center gap-4 overflow-hidden px-5 pb-12 pt-12"
-        style={{ background: themeStyles.headerBackground }}
+      <SectionHero
+        eyebrow="Ficha institucional"
+        title={affiliate.nombreCompleto}
+        subtitle={`Socio ${affiliate.socio}`}
+        imageSrc="/assets/heroes/profile-hero.svg"
       >
-        <div className="absolute -right-12 top-2 h-40 w-40 rounded-full bg-white/10" />
-        <div className="absolute -left-16 bottom-0 h-36 w-36 rounded-full bg-white/5" />
-
-        <div className="relative flex h-20 w-20 items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.14)", border: "2px solid rgba(255,255,255,0.32)", boxShadow: "0 12px 30px rgba(0,0,0,0.14)" }}>
-          <span className="text-2xl font-extrabold" style={{ color: "#ffffff" }}>
-            {initials}
-          </span>
-        </div>
-
-        <div className="relative flex flex-col items-center gap-1.5 text-center">
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: "rgba(255,255,255,0.58)" }}>
-            Ficha institucional
-          </p>
-          <h1 className="text-xl font-extrabold" style={{ color: "#ffffff" }}>
-            {affiliate.nombreCompleto}
-          </h1>
-          <p className="text-sm font-bold" style={{ color: "rgba(255,255,255,0.68)" }}>
-            Socio {affiliate.socio}
-          </p>
-          <div className="mt-1">
-            <StatusBadge status={affiliate.estado} size="sm" />
+        <div className="flex items-center gap-3">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.16)", border: "2px solid rgba(255,255,255,0.34)", boxShadow: "0 12px 30px rgba(0,0,0,0.14)" }}>
+            <span className="text-xl font-extrabold" style={{ color: "#ffffff" }}>
+              {initials}
+            </span>
           </div>
+          <StatusBadge status={affiliate.estado} size="sm" />
         </div>
-      </div>
+      </SectionHero>
 
       <div className="-mt-8 flex flex-col gap-4 px-4 pb-6">
         <div className="mtcp-card overflow-hidden">
-          <div className="flex items-center gap-2 px-5 py-4" style={{ borderBottom: "1px solid var(--border)", background: "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)" }}>
+          <div className="flex items-center gap-2 px-5 py-4" style={{ borderBottom: "1px solid rgba(20,91,184,0.08)", background: "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)" }}>
             <BadgeCheck size={16} strokeWidth={2.2} style={{ color: "var(--primary)" }} />
             <div>
               <p className="text-sm font-extrabold" style={{ color: "var(--foreground)" }}>
