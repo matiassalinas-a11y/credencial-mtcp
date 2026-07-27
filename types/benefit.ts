@@ -28,6 +28,10 @@ export type Benefit = {
   phone?: string
   whatsapp?: string
   instagram?: string
+  email?: string
+  ctaLabel?: string
+  availabilityText?: string
+  secondaryHighlights?: string[]
   conditions?: string[]
   paymentMethods?: string[]
   imageUrl?: string

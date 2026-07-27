@@ -163,6 +163,21 @@ function useMouseDragScroll() {
   }
 }
 
+function getFeaturedSummary(benefit: Benefit): string {
+  if (benefit.availabilityText) return benefit.availabilityText
+  if (benefit.whatsapp) return "WhatsApp disponible"
+  return benefit.region
+}
+
+function getBenefitLocation(benefit: Benefit): string {
+  if (benefit.address) return benefit.address
+  return benefit.delegation === "Todas" ? benefit.region : benefit.delegation
+}
+
+function getFeaturedCta(benefit: Benefit): string {
+  return benefit.ctaLabel ?? "Ver más"
+}
+
 function FeaturedBenefitCard({
   benefit,
   onOpenBenefit,
@@ -171,6 +186,7 @@ function FeaturedBenefitCard({
   onOpenBenefit: (benefitSlug: string) => void
 }) {
   const clickGuard = useDragClickGuard(() => onOpenBenefit(benefit.slug))
+  const location = getBenefitLocation(benefit)
 
   return (
     <button
@@ -192,6 +208,11 @@ function FeaturedBenefitCard({
             <p className="mt-1 text-xl font-extrabold leading-tight text-white">
               {benefit.discount}
             </p>
+            {benefit.secondaryHighlights?.[0] && (
+              <p className="mt-1 text-xs font-bold leading-tight text-white/78">
+                {benefit.secondaryHighlights[0]}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -208,10 +229,21 @@ function FeaturedBenefitCard({
         <p className="mt-2 overflow-hidden text-xs font-medium leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]" style={{ color: "var(--muted-foreground)" }}>
           {benefit.shortDescription}
         </p>
-        <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-bold" style={{ color: "var(--primary)" }}>
-          <MapPinned size={12} strokeWidth={2.3} />
-          {benefit.region}
-        </span>
+        <p className="mt-2 inline-flex min-w-0 items-start gap-1 text-[10px] font-semibold leading-snug" style={{ color: "var(--muted-foreground)" }}>
+          <MapPinned size={12} strokeWidth={2.2} className="mt-0.5 flex-shrink-0" style={{ color: "var(--primary)" }} />
+          <span className="overflow-hidden [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]">
+            {location}
+          </span>
+        </p>
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <span className="inline-flex min-w-0 items-center gap-1 text-[10px] font-bold" style={{ color: "var(--primary)" }}>
+            <MapPinned size={12} strokeWidth={2.3} className="flex-shrink-0" />
+            <span className="truncate">{getFeaturedSummary(benefit)}</span>
+          </span>
+          <span className="flex-shrink-0 rounded-full px-2.5 py-1 text-[10px] font-extrabold" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
+            {getFeaturedCta(benefit)}
+          </span>
+        </div>
       </div>
     </button>
   )

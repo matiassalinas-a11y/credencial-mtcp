@@ -41,6 +41,8 @@ export default function BenefitDetailScreen({ benefitSlug, onBack }: BenefitDeta
     )
   }
 
+  const benefitDisplay = [benefit.discount, ...(benefit.secondaryHighlights ?? [])].join(" y ")
+
   return (
     <div className="screen-scroll screen-enter">
       <div className="relative overflow-hidden px-5 pb-6 pt-12" style={{ background: themeStyles.headerBackground }}>
@@ -98,7 +100,10 @@ export default function BenefitDetailScreen({ benefitSlug, onBack }: BenefitDeta
           </section>
 
           <section className="mtcp-card overflow-hidden">
-            <InfoRow icon={<BadgePercent size={16} strokeWidth={2.2} />} label="Beneficio" value={benefit.discount} />
+            <InfoRow icon={<BadgePercent size={16} strokeWidth={2.2} />} label="Beneficio" value={benefitDisplay} />
+            {benefit.availabilityText && (
+              <InfoRow icon={<CheckCircle2 size={16} strokeWidth={2.2} />} label="Dato útil" value={benefit.availabilityText} />
+            )}
             <InfoRow icon={<MapPinned size={16} strokeWidth={2.2} />} label="Sede / región" value={benefit.delegation === "Todas" ? benefit.region : benefit.delegation} />
             {benefit.address && (
               <InfoRow icon={<MapPinned size={16} strokeWidth={2.2} />} label="Dirección" value={benefit.address} />
@@ -112,7 +117,14 @@ export default function BenefitDetailScreen({ benefitSlug, onBack }: BenefitDeta
             {benefit.instagram && (
               <InfoRow icon={<ExternalLink size={16} strokeWidth={2.2} />} label="Instagram" value={benefit.instagram} />
             )}
+            {benefit.email && (
+              <InfoRow icon={<ExternalLink size={16} strokeWidth={2.2} />} label="Mail" value={benefit.email} />
+            )}
           </section>
+
+          {benefit.secondaryHighlights && benefit.secondaryHighlights.length > 0 && (
+            <InfoList title="Beneficios adicionales" items={benefit.secondaryHighlights} />
+          )}
 
           {benefit.conditions && benefit.conditions.length > 0 && (
             <InfoList title="Condiciones" items={benefit.conditions} />
@@ -131,7 +143,7 @@ export default function BenefitDetailScreen({ benefitSlug, onBack }: BenefitDeta
                 className="mtcp-button-primary flex items-center justify-center gap-2 py-4 text-sm font-extrabold"
               >
                 <MessageCircle size={17} strokeWidth={2.3} />
-                Consultar por WhatsApp
+                {benefit.ctaLabel ?? "Consultar por WhatsApp"}
               </a>
             )}
             <button onClick={onBack} className="mtcp-button-secondary flex items-center justify-center gap-2 py-4 text-sm font-extrabold">

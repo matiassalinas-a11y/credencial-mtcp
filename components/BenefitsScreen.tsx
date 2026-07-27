@@ -74,6 +74,23 @@ const categoryIcons: Record<string, ComponentType<{ size?: number; strokeWidth?:
   servicios: BriefcaseBusiness,
 }
 
+const categoryStyles: Record<string, { background: string; color: string; border: string }> = {
+  gastronomia: { background: "#FFF8E6", color: "#C2410C", border: "rgba(194, 65, 12, 0.12)" },
+  turismo: { background: "#EEF4FF", color: "#2563EB", border: "rgba(37, 99, 235, 0.12)" },
+  automotor: { background: "#F1F5F9", color: "#334155", border: "rgba(51, 65, 85, 0.12)" },
+  hogar: { background: "#ECF9FF", color: "#0284C7", border: "rgba(2, 132, 199, 0.12)" },
+  educacion: { background: "#EEF2FF", color: "#4F46E5", border: "rgba(79, 70, 229, 0.12)" },
+  construccion: { background: "#FFF4EA", color: "#D9480F", border: "rgba(217, 72, 15, 0.12)" },
+  bienestar: { background: "#FFF1F4", color: "#DB2777", border: "rgba(219, 39, 119, 0.12)" },
+  eventos: { background: "#F7EEFF", color: "#7E22CE", border: "rgba(126, 34, 206, 0.12)" },
+  indumentaria: { background: "#FFF0F7", color: "#DB2777", border: "rgba(219, 39, 119, 0.12)" },
+  libreria: { background: "#EEF2FF", color: "#4F46E5", border: "rgba(79, 70, 229, 0.12)" },
+  recreacion: { background: "#EAFBFC", color: "#0E7490", border: "rgba(14, 116, 144, 0.12)" },
+  servicios: { background: "#ECFDF5", color: "#047857", border: "rgba(4, 120, 87, 0.12)" },
+  kids: { background: "#F3FCE8", color: "#4D7C0F", border: "rgba(77, 124, 15, 0.12)" },
+  otro: { background: "#F1F5F9", color: "#475569", border: "rgba(71, 85, 105, 0.12)" },
+}
+
 function getDelegationOptions(): string[] {
   const sharedCities = delegations
     .filter((delegation) => delegation.published)
@@ -91,13 +108,21 @@ function normalizeKey(value: string): string {
 }
 
 function getContactSummary(benefit: Benefit): string {
+  if (benefit.availabilityText) return benefit.availabilityText
   if (benefit.whatsapp) return "WhatsApp disponible"
   if (benefit.phone) return benefit.phone
   if (benefit.address) return benefit.address
   return benefit.delegation === "Todas" ? benefit.region : benefit.delegation
 }
 
+function getBenefitLocation(benefit: Benefit): string {
+  if (benefit.address) return benefit.address
+  return benefit.delegation === "Todas" ? benefit.region : benefit.delegation
+}
+
 function getCtaLabel(benefit: Benefit): string {
+  if (benefit.ctaLabel) return benefit.ctaLabel
+
   const name = normalizeKey(benefit.name)
 
   if (benefit.whatsapp && name.includes("beauty")) return "Turnos online"
@@ -145,6 +170,11 @@ function BenefitCover({
           <p className={size === "compact" ? "mt-1 text-base font-extrabold leading-tight text-white" : "mt-1 text-2xl font-extrabold leading-tight text-white"}>
             {benefit.discount}
           </p>
+          {benefit.secondaryHighlights?.[0] && size !== "compact" && (
+            <p className="mt-1 text-xs font-bold leading-tight text-white/78">
+              {benefit.secondaryHighlights[0]}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -250,6 +280,7 @@ function FeaturedBenefitCard({
   onOpenBenefit: (benefitSlug: string) => void
 }) {
   const clickGuard = useDragClickGuard(() => onOpenBenefit(benefit.slug))
+  const location = getBenefitLocation(benefit)
 
   return (
     <button
@@ -278,6 +309,13 @@ function FeaturedBenefitCard({
           {benefit.shortDescription}
         </p>
 
+        <p className="mt-3 inline-flex min-w-0 items-start gap-1.5 text-[11px] font-semibold leading-snug" style={{ color: "var(--muted-foreground)" }}>
+          <MapPinned size={13} strokeWidth={2.3} className="mt-0.5 flex-shrink-0" style={{ color: "var(--primary)" }} />
+          <span className="overflow-hidden [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]">
+            {location}
+          </span>
+        </p>
+
         <div className="mt-auto flex items-center justify-between gap-3 pt-4">
           <span className="inline-flex min-w-0 items-center gap-1.5 text-[11px] font-bold" style={{ color: "var(--muted-foreground)" }}>
             {benefit.whatsapp ? <MessageCircle size={13} strokeWidth={2.3} /> : <Phone size={13} strokeWidth={2.3} />}
@@ -302,6 +340,11 @@ function CategoryCard({
   onSelect: () => void
 }) {
   const Icon = categoryIcons[normalizeKey(category)] ?? BriefcaseBusiness
+  const style = categoryStyles[normalizeKey(category)] ?? {
+    background: "var(--secondary)",
+    color: "var(--primary)",
+    border: "rgba(20, 91, 184, 0.09)",
+  }
 
   return (
     <button
@@ -310,18 +353,18 @@ function CategoryCard({
       className="min-h-[112px] rounded-[20px] px-4 py-4 text-left transition-all active:scale-[0.98]"
       style={{
         background: active
-          ? "linear-gradient(135deg, var(--primary), var(--primary-dark))"
-          : "linear-gradient(180deg, #ffffff 0%, #f7fbff 100%)",
-        border: active ? "1px solid var(--primary)" : "1px solid rgba(20, 91, 184, 0.09)",
+          ? `linear-gradient(135deg, ${style.color}, var(--primary-dark))`
+          : style.background,
+        border: active ? `1px solid ${style.color}` : `1px solid ${style.border}`,
         boxShadow: active ? "var(--shadow-button)" : "var(--shadow-card)",
-        color: active ? "#ffffff" : "var(--foreground)",
+        color: active ? "#ffffff" : style.color,
       }}
     >
       <span
         className="flex h-11 w-11 items-center justify-center rounded-[15px]"
         style={{
-          background: active ? "rgba(255,255,255,0.16)" : "var(--secondary)",
-          color: active ? "#ffffff" : "var(--primary)",
+          background: active ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.56)",
+          color: active ? "#ffffff" : style.color,
         }}
       >
         <Icon size={22} strokeWidth={2.2} />
@@ -393,6 +436,8 @@ function CompactBenefitCard({
   benefit: Benefit
   onOpenBenefit: (benefitSlug: string) => void
 }) {
+  const location = getBenefitLocation(benefit)
+
   return (
     <button
       type="button"
@@ -423,6 +468,12 @@ function CompactBenefitCard({
           </p>
           <p className="mt-2 overflow-hidden text-xs font-medium leading-snug [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]" style={{ color: "var(--muted-foreground)" }}>
             {benefit.shortDescription}
+          </p>
+          <p className="mt-2 inline-flex min-w-0 items-start gap-1 text-[10px] font-semibold leading-snug" style={{ color: "var(--muted-foreground)" }}>
+            <MapPinned size={12} strokeWidth={2.2} className="mt-0.5 flex-shrink-0" style={{ color: "var(--primary)" }} />
+            <span className="overflow-hidden [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]">
+              {location}
+            </span>
           </p>
         </div>
       </div>
@@ -539,9 +590,6 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
                 Usá búsqueda, sede o categoría para afinar el listado.
               </p>
             </div>
-            <span className="rounded-full px-2.5 py-1 text-[10px] font-extrabold" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
-              {results.length}
-            </span>
           </div>
 
           <label className="relative block">
@@ -595,7 +643,6 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
           <SectionTitle
             label="Listado general"
             title="Todos los beneficios"
-            subtitle={`${results.length} resultado${results.length === 1 ? "" : "s"} disponible${results.length === 1 ? "" : "s"}.`}
           />
 
           {results.length > 0 ? (
