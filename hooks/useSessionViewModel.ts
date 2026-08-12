@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import type { Affiliate } from "@/types/affiliate"
-import type { AppScreen, AppView } from "@/types/navigation"
+import type { AppView } from "@/types/navigation"
 import {
   clearCurrentAffiliate,
   getCurrentAffiliate,
@@ -12,7 +12,6 @@ import {
 export function useSessionViewModel() {
   const [view, setView] = useState<AppView>("splash")
   const [affiliate, setAffiliate] = useState<Affiliate | null>(null)
-  const [activeScreen, setActiveScreen] = useState<AppScreen>("home")
   const [restored, setRestored] = useState(false)
 
   useEffect(() => {
@@ -21,7 +20,6 @@ export function useSessionViewModel() {
 
       if (savedAffiliate) {
         setAffiliate(savedAffiliate)
-        setActiveScreen("home")
         setView("app")
       }
 
@@ -38,25 +36,21 @@ export function useSessionViewModel() {
   function login(found: Affiliate) {
     saveCurrentAffiliate(found)
     setAffiliate(found)
-    setActiveScreen("home")
     setView("app")
   }
 
   function logout() {
     clearCurrentAffiliate()
     setAffiliate(null)
-    setActiveScreen("home")
     setView("login")
   }
 
   return {
-    activeScreen,
     affiliate,
     enterLogin,
     login,
     logout,
     restored,
-    setActiveScreen,
     view,
   }
 }
