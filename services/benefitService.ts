@@ -1,4 +1,4 @@
-import { mockBenefits } from "@/data/mockBenefits"
+import { appRepositories } from "@/services/appServices"
 import type { Benefit, BenefitCategory, BenefitFilters } from "@/types/benefit"
 
 export const benefitCategories: Array<"Todos" | BenefitCategory> = [
@@ -20,9 +20,7 @@ export const benefitCategories: Array<"Todos" | BenefitCategory> = [
 ]
 
 export function getPublishedBenefits(): Benefit[] {
-  return mockBenefits
-    .filter((benefit) => benefit.published)
-    .sort((a, b) => a.sortOrder - b.sortOrder)
+  return appRepositories.benefits.listPublished()
 }
 
 export function getFeaturedBenefits(): Benefit[] {
@@ -30,7 +28,7 @@ export function getFeaturedBenefits(): Benefit[] {
 }
 
 export function getBenefitBySlug(slug: string): Benefit | undefined {
-  return getPublishedBenefits().find((benefit) => benefit.slug === slug || benefit.id === slug)
+  return appRepositories.benefits.getBySlug(slug)
 }
 
 export function searchBenefits(query: string): Benefit[] {

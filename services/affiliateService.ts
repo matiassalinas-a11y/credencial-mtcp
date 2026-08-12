@@ -1,15 +1,10 @@
-import { mockAffiliates } from "@/data/mockAffiliates"
+import { appRepositories } from "@/services/appServices"
 import type { Affiliate } from "@/types/affiliate"
 
-function normalizeDni(dni: string): string {
-  return dni.replace(/\D/g, "").trim()
-}
-
 export function getAffiliateByDni(dni: string): Affiliate | undefined {
-  return mockAffiliates.find((affiliate) => affiliate.dni === normalizeDni(dni))
+  return appRepositories.affiliates.getByDni(dni)
 }
 
 export function getAffiliateByMemberNumber(memberNumber: string): Affiliate | undefined {
-  const normalizedMemberNumber = memberNumber.trim().toUpperCase()
-  return mockAffiliates.find((affiliate) => affiliate.socio.toUpperCase() === normalizedMemberNumber)
+  return appRepositories.affiliates.getByMemberNumber(memberNumber)
 }

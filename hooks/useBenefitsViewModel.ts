@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { delegations } from "@/data/shared-content"
+import { getDelegations } from "@/services/contentService"
 import {
   benefitCategories,
   filterBenefits,
@@ -25,8 +25,7 @@ const fixedDelegations = [
 ]
 
 function getDelegationOptions(): string[] {
-  const sharedCities = delegations
-    .filter((delegation) => delegation.published)
+  const sharedCities = getDelegations()
     .sort((a, b) => a.sortOrder - b.sortOrder)
     .map((delegation) => delegation.city)
 

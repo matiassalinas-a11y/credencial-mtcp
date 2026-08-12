@@ -1,9 +1,4 @@
-import {
-  appTexts,
-  delegations,
-  institutionalInfo,
-  mutualServices,
-} from "@/data/shared-content"
+import { appRepositories } from "@/services/appServices"
 import type {
   AppTexts,
   Delegation,
@@ -13,9 +8,7 @@ import type {
 import type { NewsItem } from "@/types/content"
 
 export function getBenefits(): MutualService[] {
-  return mutualServices
-    .filter((service) => service.published)
-    .sort((a, b) => a.sortOrder - b.sortOrder)
+  return appRepositories.content.listPublishedServices()
 }
 
 export function getFeaturedBenefits(): MutualService[] {
@@ -23,25 +16,25 @@ export function getFeaturedBenefits(): MutualService[] {
 }
 
 export function getBenefitById(id: string): MutualService | undefined {
-  return getBenefits().find((service) => service.id === id || service.slug === id)
+  return appRepositories.content.getServiceById(id)
 }
 
 export function getTourismPackages(): MutualService[] {
-  return mutualServices.filter((service) => service.id === "construir-viajes")
+  return appRepositories.content.listTourismPackages()
 }
 
 export function getNews(): NewsItem[] {
-  return []
+  return appRepositories.content.listNews()
 }
 
 export function getInstitutionalInfo(): InstitutionalInfo {
-  return institutionalInfo
+  return appRepositories.content.getInstitutionalInfo()
 }
 
 export function getDelegations(): Delegation[] {
-  return delegations.filter((delegation) => delegation.published)
+  return appRepositories.content.listDelegations()
 }
 
 export function getAppTexts(): AppTexts {
-  return appTexts
+  return appRepositories.content.getAppTexts()
 }
