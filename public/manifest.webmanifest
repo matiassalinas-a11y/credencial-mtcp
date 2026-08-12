@@ -1,0 +1,34 @@
+{
+  "name": "Credencial Digital M.T.C.P.",
+  "short_name": "M.T.C.P.",
+  "description": "Credencial digital de la Mutual de los Trabajadores de la Construcción de la Patagonia.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F7F9",
+  "theme_color": "#145BB8",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-light-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "es-AR",
+  "dir": "ltr"
+}
