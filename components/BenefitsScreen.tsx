@@ -463,7 +463,8 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
         eyebrow={institutionalInfo.shortName}
         title="Beneficios"
         subtitle="Descuentos y convenios para afiliados M.T.C.P."
-        imageSrc="/assets/heroes/benefits-hero.svg"
+        imageSrc="/assets/heroes/benefits-market-mutual.jpg"
+        imagePosition="center 54%"
         variant="short"
       />
 
