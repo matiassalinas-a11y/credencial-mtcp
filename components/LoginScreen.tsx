@@ -1,48 +1,19 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
 import { BadgeCheck, ChevronDown, Info, LoaderCircle, LockKeyhole, UserRound } from "lucide-react"
 import { brand } from "@/config/brand"
 import { appTexts, institutionalInfo } from "@/data/shared-content"
-import type { Affiliate } from "@/types/affiliate"
-import { getAffiliateByDni } from "@/services/affiliateService"
+import { useLoginViewModel } from "@/hooks/useLoginViewModel"
 import { themeStyles } from "@/lib/themeStyles"
+import type { Affiliate } from "@/types/affiliate"
 import MtcpLogo from "@/components/MtcpLogo"
 
 interface LoginScreenProps {
   onLogin: (affiliate: Affiliate) => void
 }
 
-const devDnis = [
-  { dni: "30111222", nombre: "Juan Pérez", estado: "Activo" },
-  { dni: "28777888", nombre: "Carlos Gómez", estado: "Período de gracia" },
-  { dni: "33444555", nombre: "Roberto Díaz", estado: "Inactivo" },
-]
-
 export default function LoginScreen({ onLogin }: LoginScreenProps) {
-  const [dni, setDni] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [showDevHints, setShowDevHints] = useState(false)
-
-  const isReady = dni.length >= 7
-
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    if (!isReady) return
-    setError("")
-    setLoading(true)
-
-    window.setTimeout(() => {
-      const found = getAffiliateByDni(dni)
-      setLoading(false)
-      if (found) {
-        onLogin(found)
-      } else {
-        setError("No encontramos una credencial asociada a este DNI.")
-      }
-    }, 600)
-  }
+  const login = useLoginViewModel({ onLogin })
 
   return (
     <div className="flex min-h-dvh flex-col screen-enter">
@@ -85,7 +56,7 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+          <form onSubmit={login.handleSubmit} className="flex flex-col gap-4" noValidate>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="dni" className="text-[11px] font-extrabold uppercase tracking-[0.12em]" style={{ color: "var(--muted-foreground)" }}>
                 Número de DNI
@@ -98,29 +69,26 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                   inputMode="numeric"
                   pattern="[0-9]*"
                   placeholder="Ej: 30111222"
-                  value={dni}
-                  onChange={(e) => {
-                    setDni(e.target.value.replace(/\D/g, "").slice(0, 10))
-                    setError("")
-                  }}
+                  value={login.dni}
+                  onChange={login.handleDniChange}
                   className="w-full rounded-[16px] py-4 pl-11 pr-4 text-lg font-extrabold outline-none transition-all"
                   style={{
                     background: "var(--surface-soft)",
-                    border: error ? "2px solid var(--destructive)" : "2px solid var(--border)",
+                    border: login.error ? "2px solid var(--destructive)" : "2px solid var(--border)",
                     color: "var(--foreground)",
                     fontFamily: "var(--font-sans)",
                     letterSpacing: "0.08em",
                   }}
                   autoComplete="off"
-                  disabled={loading}
+                  disabled={login.loading}
                   maxLength={10}
                 />
               </div>
-              {error && (
+              {login.error && (
                 <div className="mt-1 flex items-start gap-2 rounded-[14px] px-3 py-2.5" style={{ background: "var(--error-soft)", border: "1px solid #fecaca" }}>
                   <Info size={15} strokeWidth={2.2} className="mt-0.5 flex-shrink-0" style={{ color: "var(--destructive)" }} />
                   <p className="text-sm leading-snug" style={{ color: "var(--destructive)" }}>
-                    {error}
+                    {login.error}
                   </p>
                 </div>
               )}
@@ -128,17 +96,17 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
 
             <button
               type="submit"
-              disabled={loading || !isReady}
+              disabled={login.loading || !login.isReady}
               className="w-full py-4 text-base font-extrabold transition-all active:scale-[0.98] disabled:cursor-not-allowed"
               style={{
                 borderRadius: "999px",
-                background: isReady && !loading ? "var(--primary)" : "var(--muted)",
-                color: isReady && !loading ? "#ffffff" : "var(--muted-foreground)",
-                boxShadow: isReady && !loading ? "var(--shadow-button)" : "none",
-                opacity: loading ? 0.72 : 1,
+                background: login.isReady && !login.loading ? "var(--primary)" : "var(--muted)",
+                color: login.isReady && !login.loading ? "#ffffff" : "var(--muted-foreground)",
+                boxShadow: login.isReady && !login.loading ? "var(--shadow-button)" : "none",
+                opacity: login.loading ? 0.72 : 1,
               }}
             >
-              {loading ? (
+              {login.loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <LoaderCircle className="animate-spin" size={17} strokeWidth={2.5} />
                   Buscando...
@@ -152,28 +120,25 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
 
         <div className="mt-4">
           <button
-            onClick={() => setShowDevHints((v) => !v)}
+            onClick={login.toggleDevHints}
             className="flex items-center gap-1.5 px-1 py-1 text-xs font-semibold transition-opacity active:opacity-60"
             style={{ color: "var(--muted-foreground)" }}
             type="button"
-            aria-expanded={showDevHints}
+            aria-expanded={login.showDevHints}
           >
             <Info size={13} strokeWidth={2.1} />
             {appTexts.login.devHintLabel}
-            <ChevronDown size={13} strokeWidth={2.5} style={{ transform: showDevHints ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+            <ChevronDown size={13} strokeWidth={2.5} style={{ transform: login.showDevHints ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
           </button>
 
-          {showDevHints && (
+          {login.showDevHints && (
             <div className="mt-1 flex flex-col gap-2 rounded-[16px] px-4 py-3" style={{ background: "var(--secondary)", border: "1px solid var(--border)" }}>
               <p className="mtcp-section-label">Solo para desarrollo</p>
-              {devDnis.map((h) => (
+              {login.devDnis.map((h) => (
                 <button
                   key={h.dni}
                   type="button"
-                  onClick={() => {
-                    setDni(h.dni)
-                    setError("")
-                  }}
+                  onClick={() => login.selectDevDni(h.dni)}
                   className="flex items-center justify-between rounded-[14px] px-3 py-2.5 text-left transition-all active:opacity-70 hover:opacity-90"
                   style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                 >

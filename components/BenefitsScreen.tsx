@@ -1,9 +1,7 @@
 "use client"
 
 import {
-  useMemo,
   useRef,
-  useState,
   type ComponentType,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
@@ -31,13 +29,9 @@ import {
   Plane,
 } from "lucide-react"
 import type { Affiliate } from "@/types/affiliate"
-import type { Benefit } from "@/types/benefit"
-import { delegations, institutionalInfo } from "@/data/shared-content"
-import {
-  benefitCategories,
-  filterBenefits,
-  getFeaturedBenefits,
-} from "@/services/benefitService"
+import type { Benefit, BenefitCategory } from "@/types/benefit"
+import { institutionalInfo } from "@/data/shared-content"
+import { useBenefitsViewModel } from "@/hooks/useBenefitsViewModel"
 import SectionHero from "@/components/SectionHero"
 
 interface BenefitsScreenProps {
@@ -45,19 +39,6 @@ interface BenefitsScreenProps {
   onOpenBenefit: (benefitSlug: string) => void
 }
 
-const fixedDelegations = [
-  "Todas las sedes",
-  "Mi sede",
-  "Comodoro Rivadavia",
-  "Esquel",
-  "Sarmiento",
-  "Camarones",
-  "Río Gallegos",
-  "El Calafate",
-  "28 de Noviembre",
-  "Puerto San Julián",
-  "Gobernador Gregores",
-]
 
 const categoryIcons: Record<string, ComponentType<{ size?: number; strokeWidth?: number }>> = {
   gastronomia: Utensils,
@@ -89,15 +70,6 @@ const categoryStyles: Record<string, { background: string; color: string; border
   servicios: { background: "#ECFDF5", color: "#047857", border: "rgba(4, 120, 87, 0.12)" },
   kids: { background: "#F3FCE8", color: "#4D7C0F", border: "rgba(77, 124, 15, 0.12)" },
   otro: { background: "#F1F5F9", color: "#475569", border: "rgba(71, 85, 105, 0.12)" },
-}
-
-function getDelegationOptions(): string[] {
-  const sharedCities = delegations
-    .filter((delegation) => delegation.published)
-    .sort((a, b) => a.sortOrder - b.sortOrder)
-    .map((delegation) => delegation.city)
-
-  return Array.from(new Set([...fixedDelegations, ...sharedCities]))
 }
 
 function normalizeKey(value: string): string {
@@ -335,7 +307,7 @@ function CategoryCard({
   active,
   onSelect,
 }: {
-  category: (typeof benefitCategories)[number]
+  category: "Todos" | BenefitCategory
   active: boolean
   onSelect: () => void
 }) {
@@ -482,37 +454,8 @@ function CompactBenefitCard({
 }
 
 export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScreenProps) {
-  const [query, setQuery] = useState("")
-  const [category, setCategory] = useState<(typeof benefitCategories)[number]>("Todos")
-  const [delegation, setDelegation] = useState("Todas las sedes")
+  const benefits = useBenefitsViewModel({ affiliate })
   const carouselDrag = useMouseDragScroll()
-
-  const delegationOptions = useMemo(() => getDelegationOptions(), [])
-  const editorialCategories = useMemo(
-    () => benefitCategories.filter((item) => !["Todos", "Kids", "Otro"].includes(item)),
-    []
-  )
-  const results = useMemo(
-    () =>
-      filterBenefits({
-        query,
-        category,
-        delegation,
-        currentAffiliateDelegation: affiliate.sede,
-      }),
-    [affiliate.sede, category, delegation, query]
-  )
-  const featured = useMemo(
-    () =>
-      getFeaturedBenefits().filter((benefit) =>
-        results.some((result) => result.id === benefit.id)
-      ),
-    [results]
-  )
-  const recent = useMemo(
-    () => [...results].sort((a, b) => b.sortOrder - a.sortOrder).slice(0, 3),
-    [results]
-  )
 
   return (
     <div className="screen-scroll screen-enter">
@@ -532,17 +475,17 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
             subtitle="Descuentos y promociones exclusivas para afiliados."
             action={
               <span className="rounded-full px-2.5 py-1 text-[10px] font-extrabold" style={{ background: "var(--secondary)", color: "var(--primary)" }}>
-                {featured.length}
+                {benefits.featured.length}
               </span>
             }
           />
 
-          {featured.length > 0 ? (
+          {benefits.hasFeatured ? (
             <div
               {...carouselDrag}
               className="-mx-4 flex snap-x snap-mandatory flex-nowrap gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-4 pb-2 [touch-action:pan-x] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [scrollbar-width:none] active:cursor-grabbing md:cursor-grab [&::-webkit-scrollbar]:hidden"
             >
-              {featured.map((benefit) => (
+              {benefits.featured.map((benefit) => (
                 <FeaturedBenefitCard key={benefit.id} benefit={benefit} onOpenBenefit={onOpenBenefit} />
               ))}
             </div>
@@ -557,12 +500,12 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
             subtitle="Explorá nuestras categorías de servicios pensadas para vos."
           />
           <div className="grid grid-cols-2 gap-3">
-            {editorialCategories.map((item) => (
+            {benefits.categoryOptions.map((item) => (
               <CategoryCard
                 key={item}
                 category={item}
-                active={category === item}
-                onSelect={() => setCategory(item)}
+                active={benefits.category === item}
+                onSelect={() => benefits.setCategory(item)}
               />
             ))}
           </div>
@@ -573,8 +516,8 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
             title="Últimos convenios agregados"
             subtitle="Descubrí los nuevos acuerdos que hemos conseguido para nuestros afiliados."
           />
-          {recent.length > 0 ? (
-            recent.map((benefit) => (
+          {benefits.hasRecent ? (
+            benefits.recent.map((benefit) => (
               <RecentBenefitCard key={benefit.id} benefit={benefit} onOpenBenefit={onOpenBenefit} />
             ))
           ) : (
@@ -595,8 +538,8 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
           <label className="relative block">
             <Search size={18} strokeWidth={2.2} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "var(--primary)" }} />
             <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              value={benefits.query}
+              onChange={(event) => benefits.setQuery(event.target.value)}
               placeholder="Buscar beneficio"
               className="w-full rounded-[16px] py-3.5 pl-11 pr-4 text-sm font-semibold outline-none"
               style={{
@@ -610,8 +553,8 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
           <label className="relative block">
             <MapPinned size={18} strokeWidth={2.2} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "var(--primary)" }} />
             <select
-              value={delegation}
-              onChange={(event) => setDelegation(event.target.value)}
+              value={benefits.delegation}
+              onChange={(event) => benefits.setDelegation(event.target.value)}
               className="w-full appearance-none rounded-[16px] py-3.5 pl-11 pr-10 text-sm font-extrabold outline-none"
               style={{
                 background: "var(--surface-soft)",
@@ -619,7 +562,7 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
                 color: "var(--foreground)",
               }}
             >
-              {delegationOptions.map((option) => (
+              {benefits.delegationOptions.map((option) => (
                 <option key={option} value={option}>
                   {option}
                 </option>
@@ -628,10 +571,10 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
             <ChevronDown size={17} strokeWidth={2.5} className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: "var(--muted-foreground)" }} />
           </label>
 
-          {category !== "Todos" && (
+          {benefits.category !== "Todos" && (
             <button
               type="button"
-              onClick={() => setCategory("Todos")}
+              onClick={benefits.clearCategory}
               className="mtcp-button-secondary flex min-h-0 w-full items-center justify-center gap-2 py-3 text-xs font-extrabold"
             >
               Ver todas las categorías
@@ -645,8 +588,8 @@ export default function BenefitsScreen({ affiliate, onOpenBenefit }: BenefitsScr
             title="Todos los beneficios"
           />
 
-          {results.length > 0 ? (
-            results.map((benefit) => (
+          {benefits.hasResults ? (
+            benefits.results.map((benefit) => (
               <CompactBenefitCard key={benefit.id} benefit={benefit} onOpenBenefit={onOpenBenefit} />
             ))
           ) : (
