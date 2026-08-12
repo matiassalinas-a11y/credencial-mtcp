@@ -1,4 +1,7 @@
+"use client"
+
 import Image from "next/image"
+import { useRef, type PointerEvent } from "react"
 import { brand } from "@/config/brand"
 
 interface SplashScreenProps {
@@ -6,9 +9,31 @@ interface SplashScreenProps {
 }
 
 export default function SplashScreen({ onEnter }: SplashScreenProps) {
+  const pointerHandled = useRef(false)
+
+  function handleEnter() {
+    onEnter()
+  }
+
+  function handlePointerUp(event: PointerEvent<HTMLButtonElement>) {
+    if (event.pointerType === "mouse") return
+
+    pointerHandled.current = true
+    handleEnter()
+  }
+
+  function handleClick() {
+    if (pointerHandled.current) {
+      pointerHandled.current = false
+      return
+    }
+
+    handleEnter()
+  }
+
   return (
     <div
-      className="relative flex min-h-dvh flex-col items-center justify-between overflow-hidden px-6 py-14 screen-enter"
+      className="isolate relative flex min-h-dvh flex-col items-center justify-between overflow-hidden px-6 py-14 screen-enter"
       style={{
         backgroundImage: `
           linear-gradient(180deg, rgba(7, 21, 45, 0.78) 0%, rgba(16, 42, 102, 0.72) 42%, rgba(20, 91, 184, 0.78) 100%),
@@ -19,16 +44,16 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
         backgroundPosition: "center",
       }}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,255,255,0.10),transparent_28%),linear-gradient(180deg,rgba(4,12,28,0.20)_0%,rgba(4,12,28,0.04)_44%,rgba(4,12,28,0.36)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_50%_36%,rgba(255,255,255,0.10),transparent_28%),linear-gradient(180deg,rgba(4,12,28,0.20)_0%,rgba(4,12,28,0.04)_44%,rgba(4,12,28,0.36)_100%)]" />
 
       <div
-        className="relative self-end rounded-full px-3 py-1 text-[10px] font-bold tracking-widest uppercase backdrop-blur"
+        className="relative z-10 self-end rounded-full px-3 py-1 text-[10px] font-bold tracking-widest uppercase backdrop-blur"
         style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.54)", border: "1px solid rgba(255,255,255,0.16)" }}
       >
         v1.0 - MVP
       </div>
 
-      <div className="relative flex w-full flex-col items-center gap-8">
+      <div className="pointer-events-none relative z-10 flex w-full flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-5 text-center">
           <div className="w-full max-w-[300px] px-2">
             <Image
@@ -59,11 +84,13 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
         </div>
       </div>
 
-      <div className="relative flex w-full max-w-sm flex-col items-center gap-4">
+      <div className="relative z-20 flex w-full max-w-sm flex-col items-center gap-4">
         <button
-          onClick={onEnter}
+          type="button"
+          onClick={handleClick}
+          onPointerUp={handlePointerUp}
           className="w-full py-4 rounded-full text-base font-extrabold tracking-wide transition-all active:scale-[0.98] active:opacity-90"
-          style={{ background: "#ffffff", color: "var(--primary)", boxShadow: "0 16px 34px rgba(0,0,0,0.18)" }}
+          style={{ background: "#ffffff", color: "var(--primary)", boxShadow: "0 16px 34px rgba(0,0,0,0.18)", pointerEvents: "auto", touchAction: "manipulation" }}
         >
           Ingresar
         </button>
