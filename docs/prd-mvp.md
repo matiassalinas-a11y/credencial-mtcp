@@ -5,78 +5,158 @@
 | Campo | Valor |
 | --- | --- |
 | Producto | Credencial Digital M.T.C.P. |
-| Versión del PRD | 1.0 |
+| Versión del PRD | 1.1 |
 | Estado | Borrador para validación con M.T.C.P. |
 | Alcance | Primera versión productiva del MVP |
 | Plataforma inicial | Aplicación web mobile-first |
 
 ## 1. Resumen del producto
 
-Credencial Digital M.T.C.P. permite que afiliados de la Mutual de los Trabajadores de la Construcción de la Patagonia accedan de forma segura a su credencial digital, consulten su estado de afiliación y encuentren beneficios institucionales actualizados.
+Credencial Digital M.T.C.P. es una aplicación de utilidad pública para consultar beneficios, convenios, turismo, paquetes, novedades, sedes e información institucional de la Mutual de los Trabajadores de la Construcción de la Patagonia. Cualquier persona puede acceder a ese contenido cuando esté publicado, sin necesidad de demostrar afiliación.
+
+La credencial digital constituye un área privada distinta. Solamente un usuario registrado cuya cuenta haya sido vinculada y aprobada por M.T.C.P. contra un registro real de afiliado puede consultar su credencial, estado de afiliación y datos personales autorizados.
 
 El producto busca reemplazar la consulta informal o manual de información básica por una experiencia digital simple, confiable y diseñada principalmente para celulares. La primera versión productiva debe conservar la experiencia visual ya desarrollada, pero reemplazar los datos simulados y el acceso por DNI de demostración por datos reales autorizados, autenticación real y un backend seguro.
 
 ## 2. Objetivo del MVP
 
-El objetivo principal del MVP es permitir que un afiliado autorizado pueda identificarse de manera segura, consultar su credencial y estado de afiliación vigentes, revisar sus datos básicos autorizados y acceder a información actualizada sobre beneficios y delegaciones de M.T.C.P. desde un celular.
+El objetivo principal del MVP es ofrecer desde un celular información pública útil y actualizada de M.T.C.P. para cualquier usuario, y al mismo tiempo permitir que un afiliado aprobado acceda de forma segura a su credencial y datos privados autorizados.
 
 El MVP debe validar tres hipótesis centrales:
 
-1. Los afiliados pueden activar su acceso e ingresar sin asistencia permanente del personal de M.T.C.P.
-2. La credencial digital y el estado mostrado son útiles, comprensibles y confiables para el afiliado.
-3. Los afiliados pueden encontrar beneficios vigentes mediante categorías, sedes y búsqueda.
+1. Visitantes y usuarios registrados pueden encontrar contenido institucional vigente sin atravesar una validación de afiliación.
+2. Una persona puede registrarse y verificar su email sin obtener acceso automático a una credencial.
+3. M.T.C.P. puede validar y revocar de forma controlada la vinculación entre una cuenta y un afiliado real.
+4. La credencial digital y el estado mostrado son útiles, comprensibles y confiables para el afiliado validado.
+5. Los usuarios pueden encontrar beneficios y convenios mediante categorías, sedes y búsqueda.
 
 El MVP no tiene como objetivo publicar inmediatamente una aplicación en App Store o Play Store ni incorporar todos los futuros servicios de la Mutual.
 
-## 3. Usuarios
+## 3. Niveles de acceso y usuarios
 
-### 3.1 Afiliado titular
+### 3.1 Visitante o `guest`
 
-Usuario principal del MVP. Puede activar su acceso, autenticarse, consultar exclusivamente su información autorizada, ver su credencial y estado, consultar beneficios y cerrar sesión.
+Persona que abre la aplicación sin crear una cuenta o iniciar sesión.
 
-### 3.2 Beneficiario/a, si aplica
+Puede consultar:
+
+- Beneficios y convenios publicados.
+- Turismo y paquetes publicados.
+- Novedades publicadas.
+- Sedes, delegaciones y contacto.
+- Información institucional.
+
+No puede consultar:
+
+- Credencial digital.
+- Estado de afiliación.
+- Datos personales o perfil de afiliado.
+- Número de socio, empresa, beneficiarios o vigencia.
+
+### 3.2 Usuario registrado
+
+Persona que crea una cuenta con nombre, apellido, DNI, email y contraseña, y verifica su email. Puede iniciar sesión y continuar utilizando todo el contenido público.
+
+Registrarse no prueba afiliación ni habilita la credencial. La cuenta puede encontrarse en alguno de estos estados de negocio:
+
+- `pending_email_verification`.
+- `pending_affiliate_validation`.
+- `active_non_affiliate`.
+- `rejected`.
+- `blocked`.
+
+El acceso a credencial no debe inferirse únicamente del estado de la cuenta: requiere una vinculación aprobada con un afiliado real.
+
+### 3.3 Afiliado validado
+
+Usuario registrado cuya identidad fue vinculada y aprobada por M.T.C.P. contra un registro real de afiliado.
+
+Puede consultar:
+
+- Todo el contenido público.
+- Su credencial digital.
+- Su estado de afiliación.
+- Sus datos privados autorizados.
+- Su perfil de afiliado.
+- Beneficios aplicables según sede, estado o reglas institucionales.
+
+La autorización privada puede revocarse sin eliminar necesariamente la cuenta pública.
+
+### 3.4 Beneficiario/a, si aplica
 
 Usuario vinculado a un afiliado titular. Su inclusión efectiva y forma de acceso quedan sujetas a confirmación de M.T.C.P. Se debe definir si utiliza una cuenta propia, la cuenta del titular o si solamente figura como dato dentro de la credencial.
 
 Hasta resolver esta definición, el MVP productivo no debe asumir que un beneficiario posee permisos equivalentes al titular.
 
-### 3.3 Personal administrativo
+### 3.5 Administrador o personal autorizado
 
-Personal autorizado de M.T.C.P. responsable de resolver incidencias operativas, verificar datos en los sistemas institucionales y asistir en activaciones o correcciones. No debe poder consultar o modificar información fuera de sus permisos y tareas asignadas.
+Personal autorizado de M.T.C.P. responsable de revisar solicitudes, aprobar o rechazar vinculaciones, revocar acceso privado, resolver incidencias y mantener contenido según sus permisos. No debe poder consultar o modificar información fuera de sus tareas asignadas.
 
-### 3.4 Futuro administrador de contenidos
+El panel administrativo avanzado queda fuera del MVP inicial. Antes de una salida productiva debe existir, como mínimo, un procedimiento seguro y auditable para validar cuentas y actualizar contenido.
+
+### 3.6 Futuro administrador de contenidos
 
 Rol responsable de mantener beneficios, delegaciones y contenido institucional. El modelo de permisos y el panel administrativo avanzado están fuera del MVP inicial. Para el lanzamiento deberá existir, como mínimo, un procedimiento seguro y documentado para actualizar y publicar contenido.
 
 ## 4. Funciones incluidas en el MVP inicial
 
-### 4.1 Login y activación segura
+### 4.1 Acceso público sin cuenta
 
-- Activación inicial mediante un mecanismo de validación de identidad aprobado por M.T.C.P.
-- Autenticación real; el DNI no puede utilizarse como único factor secreto de acceso.
-- Mensajes claros para credenciales inválidas, acceso no activado, cuenta bloqueada, sesión vencida y errores del servicio.
-- Sesión con expiración y cierre seguro.
-- Recuperación o asistencia definida para usuarios que no puedan completar el acceso.
+- Apertura de la aplicación sin login obligatorio.
+- Navegación por contenido público publicado.
+- Separación visible y técnica entre contenido público y Credencial Digital.
+- Acceso a registro e inicio de sesión como acciones opcionales.
 
-El mecanismo concreto de activación queda pendiente de definición. Puede requerir un dato ya registrado, un código de un solo uso u otro proceso institucional verificable.
+### 4.2 Registro público y verificación de email
 
-### 4.2 Credencial digital
+- Creación de cuenta con nombre, apellido, DNI, email y contraseña.
+- Verificación obligatoria del email.
+- Aceptación de los avisos legales y de privacidad definidos por M.T.C.P.
+- La cuenta verificada puede usar contenido público, pero no obtiene credencial automáticamente.
+- Mensajes que diferencien claramente “cuenta registrada” de “afiliación validada”.
+
+### 4.3 Login y recuperación de cuenta
+
+- Inicio de sesión para cuentas existentes mediante email y contraseña.
+- Posible inicio mediante DNI y contraseña, solo si se implementa una resolución segura de la cuenta y se evitan enumeraciones.
+- El DNI no funciona como contraseña ni demuestra afiliación.
+- Recuperación mediante email verificado y un procedimiento reforzado para casos excepcionales.
+- Sesión con expiración, cierre y revocación definidos.
+
+### 4.4 Solicitud y validación de afiliación
+
+- Un usuario con email verificado puede solicitar la validación de su condición de afiliado.
+- La solicitud queda en `pending_affiliate_validation` mientras M.T.C.P. verifica la información.
+- Nombre, apellido y DNI no deben producir una aprobación automática.
+- M.T.C.P. debe contrastar la solicitud con la fuente oficial de afiliados y aplicar el mecanismo de validación aprobado.
+- La aprobación crea o actualiza una vinculación explícita entre cuenta y afiliado.
+- El rechazo debe registrar un motivo interno y mostrar al usuario un mensaje apropiado que no exponga información sensible.
+- La vinculación puede revocarse por baja, error, fraude, suspensión u otra regla institucional.
+
+El mecanismo concreto puede incluir un contacto previamente registrado, OTP, código de activación o asistencia administrativa, según `docs/auth-strategy.md` y la calidad real de datos de M.T.C.P.
+
+### 4.5 Credencial digital privada
 
 - Visualización de la credencial del usuario autenticado.
 - Datos reales obtenidos desde el backend.
 - Presentación exclusiva de campos autorizados por M.T.C.P.
 - Estado y vigencia actualizados.
 - Comportamiento visual mobile consistente con la credencial ya aprobada.
+- Acceso únicamente cuando la relación cuenta–afiliado se encuentra aprobada y vigente.
 
 La credencial del MVP es informativa. No incluye verificación pública mediante QR.
 
-### 4.3 Estado de afiliación
+### 4.6 Estado de afiliación
 
 - Visualización clara del estado actual del afiliado.
 - Tratamiento diferenciado para estados activo, período de gracia, inactivo o suspendido, sujeto a las reglas definitivas de M.T.C.P.
 - Mensaje explicativo y canal de contacto cuando el estado limite el acceso o la validez de la credencial.
 
-### 4.4 Perfil básico
+### 4.7 Perfil de cuenta y perfil de afiliado
+
+El perfil de cuenta puede contener datos básicos declarados por el usuario registrado. Estos datos no se consideran datos oficiales de afiliación ni pueden utilizarse por sí solos para habilitar la credencial.
+
+El perfil privado del afiliado validado puede incluir:
 
 - Nombre y apellido.
 - Número de socio.
@@ -87,14 +167,16 @@ La credencial del MVP es informativa. No incluye verificación pública mediante
 
 El perfil no permitirá la edición libre de datos institucionales en el MVP. Las correcciones deberán seguir un procedimiento administrativo.
 
-### 4.5 Beneficios
+### 4.8 Beneficios y convenios públicos
 
 - Listado de beneficios publicados y vigentes.
 - Beneficios destacados.
 - Información resumida: nombre, categoría, descuento o propuesta, sede o región y descripción breve.
 - Exclusión automática de beneficios no publicados o vencidos cuando el modelo de datos contemple vigencia.
+- Acceso para visitantes, usuarios registrados y afiliados validados.
+- Personalización por sede o estado solamente después de validar afiliación y cuando la regla lo requiera.
 
-### 4.6 Buscador y filtros
+### 4.9 Buscador y filtros
 
 - Búsqueda por nombre, categoría, descripción, sede o región.
 - Filtro por categoría.
@@ -102,7 +184,7 @@ El perfil no permitirá la edición libre de datos institucionales en el MVP. La
 - Opción para consultar beneficios relacionados con la sede del afiliado.
 - Estado vacío cuando no haya resultados.
 
-### 4.7 Detalle de beneficio
+### 4.10 Detalle de beneficio o convenio
 
 - Descripción completa.
 - Condiciones de uso.
@@ -112,13 +194,21 @@ El perfil no permitirá la edición libre de datos institucionales en el MVP. La
 - Medios de pago y disponibilidad, cuando correspondan.
 - Acción externa de contacto, por ejemplo WhatsApp, teléfono, correo o red institucional.
 
-### 4.8 Sedes y delegaciones
+### 4.11 Turismo, paquetes y novedades públicas
+
+- Listado y detalle de turismo y paquetes cuando estén publicados.
+- Novedades institucionales publicadas.
+- Fechas, vigencia y estado de publicación administrables.
+- Acceso sin validación de afiliación, salvo contenidos futuros expresamente restringidos.
+
+### 4.12 Sedes, delegaciones e información institucional
 
 - Listado de delegaciones publicadas.
 - Ciudad, dirección, teléfono, WhatsApp, correo y horarios, según disponibilidad.
 - Uso de las delegaciones como filtro de beneficios.
+- Información institucional y canales de contacto públicos.
 
-### 4.9 Logout
+### 4.13 Logout
 
 - Cierre explícito de la sesión.
 - Eliminación de la sesión local activa.
@@ -129,8 +219,6 @@ El perfil no permitirá la edición libre de datos institucionales en el MVP. La
 
 Las siguientes funciones quedan expresamente fuera de la primera versión productiva:
 
-- Turismo y paquetes turísticos.
-- Novedades o noticias.
 - Código QR y verificación pública de credenciales.
 - Pagos, cuotas, saldos o transacciones.
 - Notificaciones push.
@@ -138,6 +226,7 @@ Las siguientes funciones quedan expresamente fuera de la primera versión produc
 - Publicación en Apple App Store.
 - Publicación en Google Play Store.
 - Panel administrativo avanzado.
+- Automatización completa del circuito administrativo de aprobación.
 - Edición de datos personales desde la app.
 - Integraciones con billeteras digitales.
 - Biometría.
@@ -151,6 +240,9 @@ Estos elementos podrán evaluarse después de validar el MVP con usuarios reales
 ### 6.1 Seguridad y privacidad
 
 - Ninguna base completa de afiliados debe incorporarse al frontend o al paquete descargable.
+- El contenido público y los datos privados deben utilizar fronteras y permisos diferentes.
+- Una cuenta registrada no debe recibir datos privados hasta que M.T.C.P. apruebe su vinculación.
+- Nombre, apellido, DNI y email declarados por el usuario no deben habilitar automáticamente una credencial.
 - Cada usuario solamente puede consultar los datos que le correspondan y que M.T.C.P. haya autorizado.
 - Toda validación de identidad, autorización y estado debe realizarse en el backend.
 - Las comunicaciones productivas deben utilizar HTTPS.
@@ -184,31 +276,47 @@ Estos elementos podrán evaluarse después de validar el MVP con usuarios reales
 
 ## 7. Flujos principales
 
-### 7.1 Activación y primer acceso
+### 7.1 Navegación como visitante
 
-1. El afiliado ingresa su identificador solicitado.
-2. El sistema inicia el mecanismo aprobado de validación de identidad.
-3. El afiliado completa la validación.
-4. El backend vincula la identidad autenticada con el registro de afiliación correspondiente.
-5. La app informa el resultado de la activación.
-6. El afiliado accede al inicio y a su credencial.
+1. La persona abre la app.
+2. La app carga únicamente contenido público publicado.
+3. Puede consultar beneficios, convenios, turismo, novedades, sedes y contacto.
+4. Si intenta abrir Credencial Digital, la app explica que debe registrarse y ser validada por M.T.C.P.
 
-### 7.2 Acceso recurrente
+### 7.2 Registro y verificación de cuenta
 
-1. El usuario se autentica o recupera una sesión todavía válida.
-2. El backend confirma identidad, autorización y estado.
-3. La app obtiene exclusivamente los datos autorizados del usuario.
-4. El usuario accede a inicio, credencial, beneficios y perfil.
+1. La persona registra nombre, apellido, DNI, email y contraseña.
+2. El sistema crea una cuenta en `pending_email_verification`.
+3. La persona verifica el email.
+4. La cuenta queda habilitada para iniciar sesión y usar contenido público.
+5. La app aclara que la credencial todavía no está disponible.
 
-### 7.3 Consulta de beneficios
+### 7.3 Solicitud de validación de credencial
+
+1. El usuario registrado solicita validar su afiliación.
+2. La solicitud queda en `pending_affiliate_validation`.
+3. M.T.C.P. verifica identidad y coincidencia con la fuente oficial.
+4. Si se aprueba, se crea una vinculación cuenta–afiliado con estado `approved`.
+5. Si se rechaza, no se expone ningún dato privado y se informa el canal de revisión o soporte.
+6. Toda aprobación, rechazo o revocación queda auditada.
+
+### 7.4 Acceso a credencial
+
+1. El usuario inicia sesión con una cuenta existente.
+2. El backend confirma que la cuenta está operativa.
+3. El sistema comprueba que existe una vinculación aprobada y vigente con un afiliado.
+4. Recién entonces devuelve la credencial y los datos privados autorizados.
+5. Si la vinculación fue revocada o dejó de ser válida, la cuenta conserva acceso al contenido público pero pierde el acceso privado.
+
+### 7.5 Consulta de contenido público
 
 1. El usuario abre Beneficios.
-2. La app muestra beneficios publicados desde el backend.
+2. La app muestra beneficios publicados desde el backend sin exigir afiliación.
 3. El usuario busca o filtra por categoría y sede.
 4. El usuario abre un beneficio.
 5. La app muestra detalle, condiciones y canales de contacto.
 
-### 7.4 Usuario inactivo, suspendido o con datos inconsistentes
+### 7.6 Usuario inactivo, suspendido o con datos inconsistentes
 
 1. El backend devuelve el estado institucional vigente.
 2. La app aplica la regla definida por M.T.C.P. para ese estado.
@@ -236,11 +344,15 @@ Estos elementos podrán evaluarse después de validar el MVP con usuarios reales
 
 ### Identidad y acceso
 
+- ¿La creación de cuentas estará abierta a cualquier persona desde el lanzamiento?
+- ¿Email y contraseña serán el método principal de acceso recurrente?
+- ¿Se permitirá login alternativo con DNI y contraseña para cuentas existentes?
 - ¿Cómo se validará la identidad durante la activación inicial?
 - ¿M.T.C.P. posee teléfono o correo verificado de cada afiliado?
 - ¿Cómo se recuperará el acceso cuando esos datos estén desactualizados?
 - ¿Qué sucede con afiliados inactivos, suspendidos o en período de gracia?
 - ¿Un afiliado inactivo puede ingresar y ver información limitada o se bloquea completamente?
+- ¿Qué procedimiento mínimo utilizará el personal para aprobar, rechazar y revocar vinculaciones?
 
 ### Beneficiarios
 
@@ -275,6 +387,10 @@ Las métricas deberán medirse sin registrar información personal innecesaria.
 | Beneficios vistos | Cantidad de listados y detalles de beneficios consultados. |
 | Búsquedas realizadas | Cantidad de búsquedas y filtros utilizados en Beneficios. |
 | Usuarios activos | Usuarios únicos con actividad en un período definido, por ejemplo diaria y mensualmente. |
+| Visitantes activos | Dispositivos o sesiones que consultan contenido público sin iniciar sesión, medidos sin identificación innecesaria. |
+| Registros verificados | Cuentas que completan la verificación de email. |
+| Solicitudes de afiliación | Solicitudes iniciadas, aprobadas, rechazadas y pendientes. |
+| Accesos a credencial autorizados | Consultas privadas realizadas con una vinculación aprobada. |
 
 Métricas complementarias recomendadas:
 
@@ -303,6 +419,9 @@ El MVP se considera listo para una primera salida productiva controlada cuando s
 ### Autenticación y seguridad
 
 - [ ] Utiliza autenticación real y el DNI no funciona como único secreto.
+- [ ] Registrarse y verificar email no habilita automáticamente la credencial.
+- [ ] La credencial solo se habilita con una vinculación cuenta–afiliado aprobada.
+- [ ] Una aprobación puede auditarse y revocarse.
 - [ ] Cada usuario solo puede acceder a sus propios datos autorizados.
 - [ ] Los datos sensibles están protegidos durante la transmisión y el almacenamiento.
 - [ ] No existen secretos administrativos ni una base completa de afiliados en el frontend.
@@ -312,7 +431,11 @@ El MVP se considera listo para una primera salida productiva controlada cuando s
 
 ### Funcionalidad
 
-- [ ] Activación, login, credencial, estado, perfil, beneficios, filtros, detalle, delegaciones y logout funcionan de punta a punta.
+- [ ] Visitantes pueden consultar contenido público sin crear cuenta.
+- [ ] Registro, verificación de email, login y recuperación funcionan para cuentas públicas.
+- [ ] Solicitud, aprobación, rechazo y revocación de afiliación tienen un procedimiento verificable.
+- [ ] Credencial, estado y perfil privado funcionan solamente para afiliados validados.
+- [ ] Beneficios, convenios, turismo, paquetes, novedades y delegaciones publicados pueden consultarse según su nivel público.
 - [ ] Los estados de afiliación aplican las reglas aprobadas por M.T.C.P.
 - [ ] Los beneficios no publicados o no vigentes no aparecen al afiliado.
 - [ ] Existen estados de carga, error, vacío, sesión vencida y falta de conexión.
@@ -348,13 +471,14 @@ El desarrollo productivo depende de que M.T.C.P. entregue o defina:
 2. Reglas de estados, vigencia y permisos.
 3. Campos autorizados para credencial y perfil.
 4. Mecanismo de validación de identidad.
-5. Tratamiento de titulares y beneficiarios.
-6. Responsable de beneficios y delegaciones.
-7. Textos legales y canal de soporte.
-8. Grupo inicial de usuarios para validación controlada.
+5. Estados, responsables y procedimiento de aprobación/revocación.
+6. Tratamiento de titulares y beneficiarios.
+7. Responsable de beneficios, turismo, novedades y delegaciones.
+8. Textos legales y canal de soporte.
+9. Grupo inicial de visitantes, usuarios registrados y afiliados para validación controlada.
 
 ## 12. Definición de cierre del MVP
 
-El MVP queda cerrado cuando un afiliado real puede activar su acceso, autenticarse, consultar exclusivamente su credencial y datos autorizados, comprender su estado, encontrar beneficios vigentes y cerrar sesión desde un celular; todo ello con backend seguro, controles de autorización, pruebas básicas, soporte operativo y aprobación de M.T.C.P.
+El MVP queda cerrado cuando cualquier persona puede consultar contenido público vigente sin validar afiliación; una persona puede crear y verificar una cuenta sin obtener privilegios privados; y un afiliado real aprobado por M.T.C.P. puede consultar exclusivamente su credencial y datos autorizados. Todo debe funcionar desde un celular con backend seguro, controles de autorización por nivel, auditoría de aprobaciones, capacidad de revocación, pruebas básicas y soporte operativo.
 
 Cualquier funcionalidad que no contribuya directamente a ese recorrido deberá permanecer fuera de alcance hasta completar la validación de esta primera versión productiva.
