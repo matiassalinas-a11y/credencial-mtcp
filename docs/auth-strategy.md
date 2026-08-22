@@ -136,7 +136,7 @@ credential_access = authenticated_account
 
 Nombre, apellido, DNI, email verificado o una coincidencia automática no deben reemplazar esa relación aprobada.
 
-El modelo debe contemplar claves primarias internas, claves foráneas e índices en las columnas de relación y autorización. La definición SQL se realizará más adelante en `docs/supabase-data-model.md`; ese documento todavía no existe y no se crea en esta etapa.
+El modelo debe contemplar claves primarias internas, claves foráneas e índices en las columnas de relación y autorización. El diseño conceptual y las decisiones previas a la definición SQL se documentan en `docs/supabase-data-model.md`; la implementación continúa pendiente.
 
 ## 6. Alternativas para validar la afiliación
 
